@@ -1,7 +1,7 @@
 var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
-var filesystem = require("fs");
+var fs = require("fs");
 var mongoose = require('mongoose')
 mongoose.Promise = Promise
 var Product = require('./Product')
@@ -11,113 +11,153 @@ var baseUrl = './we/www.thewhiskyexchange.com/p/'
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = []
-		var ids = filesystem.readdirSync(baseUrl);
+		var ids = fs.readdirSync(baseUrl);
 		for (var i = 0; i < ids.length; i++) {
-			htmls.push(baseUrl + ids[i] + filesystem.readdirSync(baseUrl + ids[i]))
+			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
 		}
-
     return htmls;
-
 };
-var htmls = _getAllFilesFromFolder(baseUrl)
-/*
-for (var i = 0; i < htmls.length; i++) {
-	parsePage(htmls[i]);
-}
-*/
 
-
+var pages = _getAllFilesFromFolder(baseUrl)
 
 function parsePage(html){
-	var $ = cheerio.load()
-//	var category = $($('.breadcrumbs li')[2]).text().trim().toLowerCase().slice(0, -1)
-	var sub_category = $($('li span')[1]).text()
-	console.log(sub_category)
-}
+	var $ = cheerio.load(html);
+  var category;
+	var sub_category;
+	var header = $('.breadcrumb-list').text().toLowerCase().trim().slice(5);
+	var wtype = $('#prodMeta dl dd').text().toLowerCase();
+	var name = $($('script')[9]).text().trim();
+	name = name.slice(name.search('\"name\"')+9,name.search('\"image\"')-16)
 
-parsePage(htmls[0]);
-
-/*
-	if(category === 'corporate gift'){
-		return false
+	var capacity = $($('.strength')).text().trim();
+	if (capacity.search('cl') !== -1) {
+		capacity = capacity.slice(0,capacity.search('cl'));
+		capacity = parseInt(capacity)*10;
+	}
+	else {
+		//console.log($('title').text());
+		return
 	}
 
-	if(category === 'our brand'){
-		if(['spirits','wines','liqueurs','beers'].indexOf(sub_category) > -1){
-			category = $($('.breadcrumbs li')[4]).text().trim().toLowerCase().slice(0, -1)
-		} else {
-			category = ''
+
+//spirits
+	if (header.search("whisky") !== -1 || header.search("whiskey") !== -1) {
+		sub_category = "whisky";
+		category = "spirit";
+	}
+	else if (header.search("absinthe") !== -1) {
+		sub_category = "absinthe";
+		category = "spirit";
+	}
+	else if (header.search("akvavit") !== -1) {
+		sub_category = "akvavit";
+		category = "spirit";
+	}
+	else if (header.search("bitters") !== -1) {
+		sub_category = "bitters";
+		category = "spirit";
+	}
+	else if (header.search("brandy") !== -1) {
+		sub_category = "brandy";
+		category = "spirit";
+	}
+	else if (header.search("brandy") !== -1) {
+		sub_category = "brandy";
+		category = "spirit";
+	}
+	else if (header.search("cachaça") !== -1) {
+		sub_category = "cachaça";
+		category = "spirit";
+	}
+	else if (header.search("gin") !== -1) {
+		sub_category = "gin";
+		category = "spirit";
+	}
+	else if (header.search("mezcal") !== -1) {
+		sub_category = "mezcal";
+		category = "spirit";
+	}
+	else if (header.search("rum") !== -1) {
+		sub_category = "rum";
+		category = "spirit";
+	}
+	else if (header.search("tequila") !== -1) {
+		sub_category = "tequila";
+		category = "spirit";
+	}
+	else if (header.search("vodka") !== -1) {
+		sub_category = "vodka";
+		category = "spirit";
+	}
+//liqueurs
+	else if (header.search("liqueur") !== -1 && header.search("herb") !== -1) {
+		sub_category = "herbal";
+		category = "liqueur";
+	}
+	else if (header.search("liqueur") !== -1 && header.search("fruit") !== -1) {
+		sub_category = "fruit";
+		category = "liqueur";
+	}
+	else if (header.search("liqueur") !== -1 && header.search("coffee") !== -1) {
+		sub_category = "coffee";
+		category = "liqueur";
+	}
+//whine
+	else if (header.search("champagne") !== -1) {
+		sub_category = "champagne";
+		category = "wine";
+	}
+	else if (header.search("wine") !== -1) {
+		if (wtype.search("white")) {
+			sub_category = "white"
 		}
-		sub_category = ''
-	}
-
-	var measurable = category === 'spirit' || category === 'liqueur' ? true : false
-
-	if(!$('.UnitV').text().split(': ')[1]){
-		return false
-	}
-
-	var capacity = $('.UnitV').text().split(': ')[1].toLowerCase().split(' ').join('')
-
-	try{
-		capacity = capacity.match(/\d+(\.?\d+)?\s?[c,m,l]/i)[0]
-	} catch(e) {
-		try{
-			capacity = capacity.match(/\d+(\.?\d+)/i)[0]
-		} catch(e){
-			console.log(e, capacity, $('.product-header-name h2').text().trim())
+		else if (wtype.search("red")) {
+			sub_category = "red"
 		}
-		console.log(e, capacity, $('.product-header-name h2').text().trim())
+		else if (wtype.search("rosé")) {
+			sub_category = "rosé"
+		}
+		category = "wine";
+	}
+	else if (header.search("liqueur") === -1) {
+		//console.log(header);
+	}
+	else {
+		//console.log(" "+header);
 	}
 
-	switch (capacity.slice(-1)) {
-		case 'c':
-			capacity = capacity.slice(0,-1) * 10
-			break
-		case 'm':
-			capacity = capacity.slice(0,-1)
-			break
-		case 'l':
-			capacity = capacity.slice(0,-1) * 1000
-			break
-		default:
-			capacity = capacity.slice(0,-1) * 10
-	}
-
-	return {
-		name: $('.product-header-name h2').text().trim(),
-		type: 'beverage',
+	var prod = {
+		name: name,
 		category: category,
 		sub_category: sub_category,
-		images: {
-			thumbnail: $('#zoomimage img').attr('src').replace('/1/image/275x378/','/1/thumbnail/275x/'),
-			normal: $('#zoomimage').attr('href')
-		},
 		capacity: capacity,
-		measurable: measurable,
-		approved: true,
-		sku: $('.sku').text().trim().split(' ')[1]
-	} */
+		approved: true
+	};
 
-/*
-function saveProducts(prodid_num) {
-	if(prodid_num === 46){
-		return console.log('All saved')
+	if (category === undefined || sub_category === undefined || isNaN(capacity) === false) {
+		console.log(name);
 	}
-	getProducts(prodid_num)
-	.then(function(products){
-		return Product.create(products)
-	})
-	.then(function(response){
-		console.log('Saved prodid: ' + prodid_num)
-		saveProducts(++prodid_num)
-	})
-	.catch(function(err){
-		console.log(err)
-		saveProducts(++prodid_num)
-	})
+	else {
+		console.log(prod);
+		return prod
+	}
 }
 
+
+function saveProducts(products) {
+	return Product.create(products)
+}
+
+
+for (var i = 0; i < pages.length; i++) {
+	if (pages[i].search('\,') !== -1) {
+		pages[i] = pages[i].slice(0,pages[i].search(','))
+	}
+	var htmls = fs.readFileSync(pages[i], "utf8");
+	parsePage(htmls)
+}
+
+/*
 
 // connect to mongo db
 mongoose.connect('mongodb://localhost/whiskyex', { server: { socketOptions: { keepAlive: 1 } } });
@@ -126,5 +166,5 @@ mongoose.connection.on('error', function(){
 })
 mongoose.connection.on('connected', function(){
 	console.log('connected')
-	saveProducts(1)
-})*/
+})
+*/

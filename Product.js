@@ -45,6 +45,10 @@ var ProductSchema = new mongoose.Schema({
   capacity: {
     type:Number,
     default: 700
+  },
+  approved: {
+    type:Boolean,
+    default: false
   }
 });
 
