@@ -134,30 +134,19 @@ function parsePage(html){
 		approved: true
 	};
 
-	if (category === undefined || sub_category === undefined || isNaN(capacity) === false) {
-		console.log(name);
+	if (category === undefined || sub_category === undefined ) {
+		return false;
 	}
 	else {
-		console.log(prod);
-		return prod
+		return prod;
 	}
-}
+};
 
+function saveProducts(htmls) {
+		return Product.create(htmls)
+};
 
-function saveProducts(products) {
-	return Product.create(products)
-}
-
-
-for (var i = 0; i < pages.length; i++) {
-	if (pages[i].search('\,') !== -1) {
-		pages[i] = pages[i].slice(0,pages[i].search(','))
-	}
-	var htmls = fs.readFileSync(pages[i], "utf8");
-	parsePage(htmls)
-}
-
-/*
+var htmls;
 
 // connect to mongo db
 mongoose.connect('mongodb://localhost/whiskyex', { server: { socketOptions: { keepAlive: 1 } } });
@@ -166,5 +155,16 @@ mongoose.connection.on('error', function(){
 })
 mongoose.connection.on('connected', function(){
 	console.log('connected')
-})
-*/
+	for (var i = 0; i < 10; i++) {
+		if (pages[i].search('\,') !== -1) {
+			pages[i] = pages[i].slice(0,pages[i].search(','))
+		}
+		htmls = fs.readFileSync(pages[i], "utf8");
+		if (parsePage(htmls) === false) {
+
+		}
+		else {
+			saveProducts(parsePage(htmls));
+		}
+	}
+});
