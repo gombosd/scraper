@@ -6,7 +6,7 @@ var Product = require('./Product');
 
 //mongoose
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/products';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/whiskyex';
 mongoose.connect(db);
 
 //express middleware
@@ -18,11 +18,11 @@ app.get('/', function(req, res){
 		if(err){
 			return res.json(err);
 		}
-    console.log("dafuq");
+    console.log(prod.length);
 		res.json(prod);
 	})
 });
-
+/*
 app.get('/:category', function(req, res){
 	Product.find({category: req.params.category}, function(err, prod){
 		if(err){
@@ -32,8 +32,8 @@ app.get('/:category', function(req, res){
 		res.json(prod);
 	})
 });
-
+*/
 //app listener
-app.listen(process.env.PORT || 3000, function () {
-  console.log('Listening on port 3000!');
+app.listen(process.env.PORT || 3600, function () {
+  console.log('Listening on port 3600!');
 });

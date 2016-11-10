@@ -1,16 +1,24 @@
-var request = require('request-promise')
-var cheerio = require('cheerio')
-var Promise = require('bluebird')
+var request = require('request-promise');
+var cheerio = require('cheerio');
+var Promise = require('bluebird');
 var fs = require("fs");
-var mongoose = require('mongoose')
-mongoose.Promise = Promise
-var Product = require('./Product')
+var Product = require('./Product');
+var express = require('express');
+
+//mongoos
+var mongoose = require('mongoose');
+var db = process.env.MONGODB_URI || 'mongodb://localhost/whiskyex';
+mongoose.connect(db);
+
+var request = require('request-promise');
+var Promise = require('bluebird');
+mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
 var baseUrl = './we/www.thewhiskyexchange.com/p/'
 
 var _getAllFilesFromFolder = function(dir) {
-		var htmls = []
+		var htmls = [];
 		var ids = fs.readdirSync(baseUrl);
 		for (var i = 0; i < ids.length; i++) {
 			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
@@ -126,45 +134,41 @@ function parsePage(html){
 		//console.log(" "+header);
 	}
 
-	var prod = {
+	var prod = new Product ({
 		name: name,
 		category: category,
 		sub_category: sub_category,
 		capacity: capacity,
 		approved: true
-	};
+	});
 
 	if (category === undefined || sub_category === undefined ) {
 		return false;
 	}
 	else {
-		return prod;
+		prod.save(function (err) {
+		  if (err) {
+		    console.log(err);
+		  }
+		});
+
 	}
-};
-
-function saveProducts(htmls) {
-		return Product.create(htmls)
-};
-
+}
 var htmls;
 
-// connect to mongo db
-mongoose.connect('mongodb://localhost/whiskyex', { server: { socketOptions: { keepAlive: 1 } } });
-mongoose.connection.on('error', function(){
-  throw new Error('unable to connect to database: ${config.db}');
-})
-mongoose.connection.on('connected', function(){
-	console.log('connected')
-	for (var i = 0; i < 10; i++) {
+var fromm = 1001;
+var too = 1500;
+var max = pages.length
+while (too <= max) {
+	for (var i = fromm; i < too; i++) {
 		if (pages[i].search('\,') !== -1) {
 			pages[i] = pages[i].slice(0,pages[i].search(','))
 		}
 		htmls = fs.readFileSync(pages[i], "utf8");
-		if (parsePage(htmls) === false) {
-
-		}
-		else {
-			saveProducts(parsePage(htmls));
-		}
-	}
-});
+		parsePage(htmls);
+	};
+	console.log("max saved: " + too);
+	too = too + 500;
+	fromm = fromm + 500;
+}
+console.log(pages.length);

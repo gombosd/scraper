@@ -12,7 +12,6 @@ var ProductSchema = new mongoose.Schema({
   },
   shortname: {
     type: String,
-    required: true,
   },
   type: {
     type: String,
