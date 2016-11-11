@@ -14,7 +14,7 @@ function getProducts(page){
 	.then(function(results){
 		var $ = cheerio.load(results)
 		var links = []
-		$('.category-products ul li a').each(function(i, el){
+		$('.category-products ul li > a').each(function(i, el){
 			links.push($(this).attr('href').toString())
 		})
 		return links
