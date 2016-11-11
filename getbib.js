@@ -1,3 +1,8 @@
+//mongoos
+var mongoose = require('mongoose');
+var db = process.env.MONGODB_URI || 'mongodb://localhost/bib';
+mongoose.connect(db);
+
 var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
@@ -6,7 +11,7 @@ mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
-var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=9&p='
+var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
 var baseUrle = '&product_type=4046'
 
 function getProducts(page){
@@ -73,45 +78,34 @@ function parsePage(html){
   else if (details.search('fortified') !== -1) {
     sub_category = 'fortified'
   }
+  else {
 
-  var prod = {
+  }
+
+  var prod = new Product ({
     name: name,
 		category: category,
 		sub_category: sub_category,
 		capacity: capacity,
 		approved: true
-  }
+  })
 
-  console.log(prod)
-}
-
-getProducts(5)
-
-/*
-function saveProducts(page_num) {
-	if(page_num === 46){
-		return console.log('All saved')
+  if (sub_category === undefined ||  capacity === 0) {
+		return false;
 	}
-	getProducts(page_num)
-	.then(function(products){
-		return Product.create(products)
-	})
-	.then(function(response){
-		console.log('Saved page: ' + page_num)
-		saveProducts(++page_num)
-	})
-	.catch(function(err){
-		console.log(err)
-		saveProducts(++page_num)
-	})
+  else {
+		prod.save(function (err) {
+		  if (err) {
+		    console.log(err);
+		  }
+      else {
+        console.log(prod);
+      }
+		})
+	}
 }
 
-// connect to mongo db
-mongoose.connect('mongodb://localhost/bib', { server: { socketOptions: { keepAlive: 1 } } });
-mongoose.connection.on('error', function(){
-  throw new Error('unable to connect to database: ${config.db}');
-})
-mongoose.connection.on('connected', function(){
-	console.log('connected')
-	saveProducts(1)
-}) */
+//össz 40 boros lap
+for (var i = 1; i <= 5; i++) {
+  getProducts(i);
+};

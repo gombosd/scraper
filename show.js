@@ -6,7 +6,7 @@ var Product = require('./Product');
 
 //mongoose
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/whiskyex';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/bib';
 mongoose.connect(db);
 
 //express middleware
@@ -34,6 +34,6 @@ app.get('/:category', function(req, res){
 });
 */
 //app listener
-app.listen(process.env.PORT || 3600, function () {
-  console.log('Listening on port 3600!');
+app.listen(process.env.PORT || 3200, function () {
+  console.log('Listening on port 3200!');
 });

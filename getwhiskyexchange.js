@@ -150,8 +150,7 @@ function parsePage(html){
 		  if (err) {
 		    console.log(err);
 		  }
-		});
-
+		})
 	}
 }
 var htmls;
