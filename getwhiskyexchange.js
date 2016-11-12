@@ -40,7 +40,7 @@ function parsePage(html){
 	var capacity = $($('.strength')).text().trim();
 	if (capacity.search('cl') !== -1) {
 		capacity = capacity.slice(0,capacity.search('cl'));
-		capacity = parseInt(capacity)*10;
+		capacity = parseFloat(capacity)*10;
 	}
 	else {
 		//console.log($('title').text());

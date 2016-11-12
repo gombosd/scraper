@@ -22,18 +22,36 @@ app.get('/', function(req, res){
 		res.json(prod);
 	})
 });
-/*
-app.get('/:category', function(req, res){
-	Product.find({category: req.params.category}, function(err, prod){
-		if(err){
-			return res.json(err);
+
+app.post('/listing', function(req, res){
+	Product.find({}, function(err, prod){
+		if(err || !req.body.category){
+			return res.json("Lol, it lookes like something went wrong!");
 		}
-    console.log("dafuq");
-		res.json(prod);
+		var match = []
+		for (var i = 0; i < prod.length; i++) {
+			if (prod[i].category === req.body.category) {
+				if (req.body.sub_category) {
+					if (prod[i].sub_category === req.body.sub_category) {
+						match.push({
+							name: prod[i].name,
+							capacity: prod[i].capacity
+						})
+					}
+				}
+				else {
+					match.push({
+						name: prod[i].name,
+						capacity: prod[i].capacity
+					})
+				}
+			}
+		}
+		res.json(match);
 	})
 });
-*/
+
 //app listener
-app.listen(process.env.PORT || 3200, function () {
-  console.log('Listening on port 3200!');
+app.listen(process.env.PORT || 3600, function () {
+  console.log('Listening on port 3600!');
 });

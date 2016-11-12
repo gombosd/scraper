@@ -12,7 +12,9 @@ var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-var baseUrle = '&product_type=4046'
+//var baseUrle = '&product_type=4046' // wines
+//var baseUrle = '&product_type=4045' // spirits
+var baseUrle = '&product_type=4047' // beers
 
 function getProducts(page){
 	return request.get(baseUrlb +  page + baseUrle)
@@ -40,23 +42,26 @@ function getProducts(page){
 
 function parsePage(html){
 	var $ = cheerio.load(html)
-	var category = "wine"
+	var category = "beer"
   var name = $('.product-name').text().trim();
-	var details = $($('.attributes_1 li span')).text().trim().toLowerCase();
+	var details = name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
 
-  if (capacity.search('cl')) {
+  if (capacity.search('cl') !== -1) {
     capacity = capacity.slice(0,capacity.search('cl')-1);
-    capacity = parseInt(capacity)*10;
+    capacity = parseFloat(capacity)*10;
   }
-  else if (capacity.search('litres')) {
+  else if (capacity.search('litres') !== -1) {
     capacity = capacity.slice(0,capacity.search('litres')-1)
-    capacity = parseInt(capacity)*1000;
+    capacity = parseFloat(capacity)*1000;
   }
+	else {
+		capacity = parseFloat(capacity)*100;
+	}
 
   var sub_category;
-
+/* //wine sorter
   if (details.search('red') !== -1 && details.search('still') !== -1) {
     sub_category = 'red'
   }
@@ -81,8 +86,48 @@ function parsePage(html){
   else {
 
   }
+*/
 
-  var prod = new Product ({
+/* //spirit sorter
+	if ((details + ' ').search(' rum ') !== -1) {
+		sub_category = 'rum';
+		//name = name.slice(details.search(' rum'),details.search(' rum')+5)
+	}
+	else if ((details + ' ').search(' whisky ') !== -1 || (details + ' ').search(' whiskey ') !== -1 || (details + ' ').search(' bourbon ') !== -1) {
+		sub_category = 'whisky';
+	}
+	else if ((details + ' ').search(' gin ') !== -1) {
+		sub_category = 'gin';
+		//name = name.slice((details + ' ').search('gin')-1,(details + ' ').search('gin')+4)
+	}
+	else if ((details + ' ').search(' vodka ') !== -1) {
+		sub_category = 'vodka';
+		//name = name.slice((details + ' ').search('vodka')-1,(details + ' ').search('vodka')+4)
+	}
+	else if ((details + ' ').search(' tequila ') !== -1) {
+		sub_category = 'tequila';
+		//name = name.slice((details + ' ').search('tequila')-1,(details + ' ').search('tequila')+4)
+	}
+	else if ((details + ' ').search(' cachaca ') !== -1) {
+		sub_category = 'cachaça';
+		//name = name.slice((details + ' ').search('cachaca')-1,(details + ' ').search('cachaca')+4)
+	}
+	else {
+		//console.log(details);
+	}
+*/
+
+	if ((details + ' ').search(' pale ale ') !== -1) {
+		sub_category = "pale ale";
+	}
+	else if ((details + ' ').search(' ale ') !== -1) {
+		sub_category = "ale";
+	}
+	else if ((details + ' ').search(' lager ') !== -1) {
+		sub_category = "lager";
+	}
+
+  var prod = new Product({
     name: name,
 		category: category,
 		sub_category: sub_category,
@@ -105,7 +150,10 @@ function parsePage(html){
 	}
 }
 
-//össz 40 boros lap
-for (var i = 1; i <= 5; i++) {
+// össz 40 boros lap --done
+// össz 3 spirits lap --done
+// össz 1 beer lap
+for (var i = 1; i <= 1; i++) {
   getProducts(i);
+	console.log("max lefutott oldal: " + i);
 };
