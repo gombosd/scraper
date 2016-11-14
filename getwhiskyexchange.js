@@ -32,6 +32,7 @@ function parsePage(html){
 	var $ = cheerio.load(html);
   var category;
 	var sub_category;
+//	var img = $('#productDefaultImage img').attr('data-original').toString();
 	var header = $('.breadcrumb-list').text().toLowerCase().trim().slice(5);
 	var wtype = $('#prodMeta dl dd').text().toLowerCase();
 	var name = $($('script')[9]).text().trim();
@@ -141,33 +142,37 @@ function parsePage(html){
 		capacity: capacity,
 		approved: true
 	});
-
+console.log("wur");
 	if (category === undefined || sub_category === undefined ) {
 		return false;
 	}
-	else {
+	else {/*
 		prod.save(function (err) {
 		  if (err) {
 		    console.log(err);
 		  }
-		})
+		}) */
+		console.log(prod);
 	}
 }
 var htmls;
 
-var fromm = 1001;
-var too = 1500;
-var max = pages.length
-while (too <= max) {
-	for (var i = fromm; i < too; i++) {
-		if (pages[i].search('\,') !== -1) {
-			pages[i] = pages[i].slice(0,pages[i].search(','))
-		}
-		htmls = fs.readFileSync(pages[i], "utf8");
-		parsePage(htmls);
-	};
-	console.log("max saved: " + too);
-	too = too + 500;
-	fromm = fromm + 500;
-}
-console.log(pages.length);
+var i = 0;
+
+function getProducts(){
+	if (i === 5) {
+		return true
+	}
+	if (pages[i].search('\,') !== -1) {
+		pages[i] = pages[i].slice(0,pages[i].search(','))
+	}
+	console.log("for lefutott " + i);
+	htmls = fs.readFileSync(pages[i], "utf8");
+	return parsePage(htmls);
+		.then(function(){
+			i = i + 1;
+			return parsePage(i);
+		})
+};
+
+getProducts();

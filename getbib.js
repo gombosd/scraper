@@ -6,19 +6,22 @@ mongoose.connect(db);
 var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
-var mongoose = require('mongoose')
 mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-//var baseUrle = '&product_type=4046' // wines
+var baseUrle = '&product_type=4046' // wines
 //var baseUrle = '&product_type=4045' // spirits
-var baseUrle = '&product_type=4047' // beers
+//var baseUrle = '&product_type=4047' // beers
+
+var i = 1;
 
 function getProducts(page){
+  console.log("Lefutott");
 	return request.get(baseUrlb +  page + baseUrle)
 	.then(function(results){
+    console.log("Lefutott2");
 		var $ = cheerio.load(results)
 		var links = []
 		$('.category-products ul li > a').each(function(i, el){
@@ -27,24 +30,35 @@ function getProducts(page){
 		return links
 	})
 	.then(function(links){
+    console.log("Lefutott3");
 		return Promise.all(links.map(function(link){
 			return request.get(link)
 		}))
 	})
 	.then(function(productPages){
+    console.log("Lefutott4");
 		return productPages.map(function(page){
 			return parsePage(page)
 		}).filter(function(page){
 			return page !== false
 		})
 	})
+  .then(function(){
+    console.log("Lefutott: " + i + "szer!");
+    if (i === 3) {
+      return true
+    }
+    i = i+1;
+    return getProducts(i);
+	})
 }
 
 function parsePage(html){
 	var $ = cheerio.load(html)
-	var category = "beer"
+  var img = $('.product-image img').attr('src').toString()
+	var category = "wine"
   var name = $('.product-name').text().trim();
-	var details = name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
+	var details =$($('.attributes_1 li span')).text().trim().toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
 
@@ -61,7 +75,7 @@ function parsePage(html){
 	}
 
   var sub_category;
-/* //wine sorter
+//wine sorter
   if (details.search('red') !== -1 && details.search('still') !== -1) {
     sub_category = 'red'
   }
@@ -86,9 +100,9 @@ function parsePage(html){
   else {
 
   }
-*/
 
-/* //spirit sorter
+/*
+//spirit sorter
 	if ((details + ' ').search(' rum ') !== -1) {
 		sub_category = 'rum';
 		//name = name.slice(details.search(' rum'),details.search(' rum')+5)
@@ -116,7 +130,7 @@ function parsePage(html){
 		//console.log(details);
 	}
 */
-
+/* //beers
 	if ((details + ' ').search(' pale ale ') !== -1) {
 		sub_category = "pale ale";
 	}
@@ -125,12 +139,15 @@ function parsePage(html){
 	}
 	else if ((details + ' ').search(' lager ') !== -1) {
 		sub_category = "lager";
-	}
+	} */
 
-  var prod = new Product({
+var prod = new Product({
     name: name,
 		category: category,
 		sub_category: sub_category,
+    images: {
+      thumbnail: img
+    },
 		capacity: capacity,
 		approved: true
   })
@@ -142,18 +159,17 @@ function parsePage(html){
 		prod.save(function (err) {
 		  if (err) {
 		    console.log(err);
+        return
 		  }
       else {
         console.log(prod);
+        return
       }
-		})
+		});
 	}
 }
 
-// össz 40 boros lap --done
+// össz 40 boros lap Craggy Range Kidnappers Chardonnay 2012
 // össz 3 spirits lap --done
-// össz 1 beer lap
-for (var i = 1; i <= 1; i++) {
-  getProducts(i);
-	console.log("max lefutott oldal: " + i);
-};
+// össz 1 beer lap --done
+getProducts(i);
