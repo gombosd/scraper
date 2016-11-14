@@ -160,8 +160,8 @@ var htmls;
 var i = 0;
 
 function getProducts(){
-	if (i === 5) {
-		return true
+	if (i === 5) { //pages.length
+		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {
 		pages[i] = pages[i].slice(0,pages[i].search(','))
@@ -171,7 +171,7 @@ function getProducts(){
 	return parsePage(htmls);
 		.then(function(){
 			i = i + 1;
-			return parsePage(i);
+			return getProducts(i);
 		})
 };
 

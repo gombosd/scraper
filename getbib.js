@@ -11,11 +11,11 @@ var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-var baseUrle = '&product_type=4046' // wines
+//var baseUrle = '&product_type=4046' // wines
 //var baseUrle = '&product_type=4045' // spirits
-//var baseUrle = '&product_type=4047' // beers
+var baseUrle = '&product_type=4047' // beers
 
-var i = 21;
+var i = 1;
 
 function getProducts(page){
   console.log("Lefutott");
@@ -45,21 +45,24 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (i === 40) {
-			console.log("All done")
-      return true
+    if (i === 1) {
+      return console.log("All done")
     }
     i = i+1;
     return getProducts(i);
+	})
+	.catch(function(err){
+		console.log(err)
+		saveProducts(++page_num)
 	})
 }
 
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = $('.product-image img').attr('src').toString()
-	var category = "wine"
+	var category = "beer"
   var name = $('.product-name').text().trim();
-	var details =$($('.attributes_1 li span')).text().trim().toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
+	var details =name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
 
@@ -76,7 +79,7 @@ function parsePage(html){
 	}
 
   var sub_category;
-//wine sorter
+/* //wine sorter
   if (details.search('red') !== -1 && details.search('still') !== -1) {
     sub_category = 'red'
   }
@@ -101,7 +104,7 @@ function parsePage(html){
   else {
 
   }
-
+*/
 /*
 //spirit sorter
 	if ((details + ' ').search(' rum ') !== -1) {
@@ -131,7 +134,7 @@ function parsePage(html){
 		//console.log(details);
 	}
 */
-/* //beers
+//beers
 	if ((details + ' ').search(' pale ale ') !== -1) {
 		sub_category = "pale ale";
 	}
@@ -140,7 +143,7 @@ function parsePage(html){
 	}
 	else if ((details + ' ').search(' lager ') !== -1) {
 		sub_category = "lager";
-	} */
+	}
 
 var prod = new Product({
     name: name,
