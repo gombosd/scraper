@@ -10,27 +10,26 @@ mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
-var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-//var baseUrle = '&product_type=4046' // wines
-//var baseUrle = '&product_type=4045' // spirits
-var baseUrle = '&product_type=4047' // beers
-
+var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider'] //, 'soft-drinks', 'ready-to-drink'
 var i = 1;
+var page = i;
+var a = 0;
+var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + page + '&Request.PageSize=36#results'
+
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get(baseUrlb +  page + baseUrle)
+	return request.get(baseUrl)
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
 		var links = []
 		$('#js-product-list div figure a').each(function(i, el){
-			links.push($(this).attr('href').toString())
+			links.push('http://www.matthewclark.co.uk' + $(this).attr('href').toString())
 		})
 		return links
 	})
 	.then(function(links){
-    console.log("Lefutott: " + i + "szer!");
 		return Promise.all(links.map(function(link){
 			return request.get(link)
 		}))
@@ -42,7 +41,7 @@ function getProducts(page){
 		}).filter(function(page){
 			return page !== false
 		})
-	})
+	})  /*
   .then(function(){
     console.log("Lefutott4");
     if (i === 1) {
@@ -54,14 +53,27 @@ function getProducts(page){
 	.catch(function(err){
 		console.log(err)
     i = i+1;
-	})
+	}) */
 }
 
 function parsePage(html){
 	var $ = cheerio.load(html)
-  var img = $('.product-image img').attr('src').toString()
-	var category = "beer"
-  var name = $('.product-name').text().trim();
+  var img = 'http://www.matthewclark.co.uk' + $('.product-details div .img-responsive').attr('src').toString()
+  var category;
+  if (cat[a] === 'champagne') {
+	  category = 'wine'
+    sub_category = 'champagne'
+	}
+  else if (cat[a] === 'wine') {
+    category = 'wine'
+  }
+  else if (cat[a] === 'spirits') {
+    category = 'spirit'
+  }
+  else if (cat[a] === 'beer' || cat[a] === 'cider') {
+    category = 'beer'
+  }
+  var name = $('.product-name').text().trim(); /*
 	var details =name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
@@ -134,7 +146,7 @@ function parsePage(html){
 		//console.log(details);
 	}
 */
-//beers
+ /* //beers
 	if ((details + ' ').search(' pale ale ') !== -1) {
 		sub_category = "pale ale";
 	}
@@ -170,7 +182,8 @@ var prod = new Product({
         return
       }
 		});
-	}
+	} */
+  console.log(category);
 }
 
 // össz 40 boros lap Craggy Range Kidnappers Chardonnay 2012

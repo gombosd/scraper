@@ -23,16 +23,18 @@ var _getAllFilesFromFolder = function(dir) {
 		for (var i = 0; i < ids.length; i++) {
 			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
 		}
+		console.log("log1");
     return htmls;
 };
 
 var pages = _getAllFilesFromFolder(baseUrl)
 
 function parsePage(html){
+	console.log("log2");
 	var $ = cheerio.load(html);
   var category;
 	var sub_category;
-//	var img = $('#productDefaultImage img').attr('data-original').toString();
+	//var img = $('#productDefaultImage img').attr('original').toString();
 	var header = $('.breadcrumb-list').text().toLowerCase().trim().slice(5);
 	var wtype = $('#prodMeta dl dd').text().toLowerCase();
 	var name = $($('script')[9]).text().trim();
@@ -140,11 +142,15 @@ function parsePage(html){
 		category: category,
 		sub_category: sub_category,
 		capacity: capacity,
-		approved: true
+		approved: true, /*
+		images: {
+			thumbnail: img
+		} */
 	});
-console.log("wur");
+	console.log("wur");
 	if (category === undefined || sub_category === undefined ) {
-		return false;
+		console.log("log3");
+		return Promise.reject()
 	}
 	else {/*
 		prod.save(function (err) {
@@ -152,7 +158,10 @@ console.log("wur");
 		    console.log(err);
 		  }
 		}) */
-		console.log(prod);
+
+		var lol = $('#productDefaultImage img').attr()
+		console.log(lol['data-original']);
+		return prod.save()
 	}
 }
 var htmls;
@@ -160,7 +169,8 @@ var htmls;
 var i = 0;
 
 function getProducts(){
-	if (i === 5) { //pages.length
+	console.log("log4");
+	if (i === 15) { //pages.length
 		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {
@@ -168,11 +178,17 @@ function getProducts(){
 	}
 	console.log("for lefutott " + i);
 	htmls = fs.readFileSync(pages[i], "utf8");
-	return parsePage(htmls);
-		.then(function(){
-			i = i + 1;
-			return getProducts(i);
-		})
+	parsePage(htmls)
+	.then(function(){
+		console.log("log5 " + i);
+		i = i + 1;
+		return getProducts();
+	})
+	.catch(function(err){
+		console.log(err)
+		i = i + 1;
+		return getProducts()
+	})
 };
 
 getProducts();

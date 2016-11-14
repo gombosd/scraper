@@ -36,7 +36,7 @@ function parsePage(html){
 	var $ = cheerio.load(html)
 	var category = $($('.breadcrumbs li')[2]).text().trim().toLowerCase().slice(0, -1)
 	var sub_category = $($('.breadcrumbs li')[4]).text().trim().toLowerCase()
-	
+
 	if(category === 'corporate gift'){
 		return false
 	}
@@ -49,7 +49,7 @@ function parsePage(html){
 		}
 		sub_category = ''
 	}
-	
+
 	var measurable = category === 'spirit' || category === 'liqueur' ? true : false
 
 	if(!$('.UnitV').text().split(': ')[1]){
@@ -57,7 +57,7 @@ function parsePage(html){
 	}
 
 	var capacity = $('.UnitV').text().split(': ')[1].toLowerCase().split(' ').join('')
-	
+
 	try{
 		capacity = capacity.match(/\d+(\.?\d+)?\s?[c,m,l]/i)[0]
 	} catch(e) {
@@ -68,8 +68,8 @@ function parsePage(html){
 		}
 		console.log(e, capacity, $('.product-header-name h2').text().trim())
 	}
-	
-	switch (capacity.slice(-1)) {	
+
+	switch (capacity.slice(-1)) {
 		case 'c':
 			capacity = capacity.slice(0,-1) * 10
 			break
@@ -82,7 +82,7 @@ function parsePage(html){
 		default:
 			capacity = capacity.slice(0,-1) * 10
 	}
-	
+
 	return {
 		name: $('.product-header-name h2').text().trim(),
 		type: 'beverage',
@@ -96,7 +96,7 @@ function parsePage(html){
 		measurable: measurable,
 		approved: true,
 		sku: $('.sku').text().trim().split(' ')[1]
-	} 
+	}
 }
 
 function saveProducts(page_num) {
@@ -118,7 +118,7 @@ function saveProducts(page_num) {
 }
 
 // connect to mongo db
-mongoose.connect('mongodb://localhost/products', { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect('mongodb://localhost/amath', { server: { socketOptions: { keepAlive: 1 } } });
 mongoose.connection.on('error', function(){
   throw new Error('unable to connect to database: ${config.db}');
 })
@@ -126,7 +126,3 @@ mongoose.connection.on('connected', function(){
 	console.log('connected')
 	saveProducts(1)
 })
-
-
-
-
