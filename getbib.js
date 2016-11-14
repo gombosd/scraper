@@ -15,7 +15,7 @@ var baseUrle = '&product_type=4046' // wines
 //var baseUrle = '&product_type=4045' // spirits
 //var baseUrle = '&product_type=4047' // beers
 
-var i = 1;
+var i = 21;
 
 function getProducts(page){
   console.log("Lefutott");
@@ -30,13 +30,13 @@ function getProducts(page){
 		return links
 	})
 	.then(function(links){
-    console.log("Lefutott3");
+    console.log("Lefutott: " + i + "szer!");
 		return Promise.all(links.map(function(link){
 			return request.get(link)
 		}))
 	})
 	.then(function(productPages){
-    console.log("Lefutott4");
+    console.log("Lefutott3");
 		return productPages.map(function(page){
 			return parsePage(page)
 		}).filter(function(page){
@@ -44,8 +44,9 @@ function getProducts(page){
 		})
 	})
   .then(function(){
-    console.log("Lefutott: " + i + "szer!");
-    if (i === 3) {
+    console.log("Lefutott4");
+    if (i === 40) {
+			console.log("All done")
       return true
     }
     i = i+1;
