@@ -3,7 +3,7 @@ var cheerio = require('cheerio');
 var Promise = require('bluebird');
 var fs = require("fs");
 var Product = require('./Product');
-var express = require('express');
+// var express = require('express');
 
 //mongoos
 var mongoose = require('mongoose');
@@ -15,7 +15,7 @@ var Promise = require('bluebird');
 mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
-var baseUrl = './we/www.thewhiskyexchange.com/p/'
+var baseUrl = './p/'
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
@@ -34,7 +34,7 @@ function parsePage(html){
 	var $ = cheerio.load(html);
   var category;
 	var sub_category;
-	//var img = $('#productDefaultImage img').attr('original').toString();
+	var img = $('#productDefaultImage img').attr('data-original').toString();
 	var header = $('.breadcrumb-list').text().toLowerCase().trim().slice(5);
 	var wtype = $('#prodMeta dl dd').text().toLowerCase();
 	var name = $($('script')[9]).text().trim();
@@ -142,10 +142,10 @@ function parsePage(html){
 		category: category,
 		sub_category: sub_category,
 		capacity: capacity,
-		approved: true, /*
+		approved: true, 
 		images: {
 			thumbnail: img
-		} */
+		} 
 	});
 	console.log("wur");
 	if (category === undefined || sub_category === undefined ) {
@@ -159,8 +159,8 @@ function parsePage(html){
 		  }
 		}) */
 
-		var lol = $('#productDefaultImage img').attr()
-		console.log(lol['data-original']);
+		// var lol = $('#productDefaultImage img').attr()
+		// console.log(lol['data-original']);
 		return prod.save()
 	}
 }
@@ -170,7 +170,7 @@ var i = 0;
 
 function getProducts(){
 	console.log("log4");
-	if (i === 15) { //pages.length
+	if (i === 1) { //pages.length
 		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {
@@ -179,7 +179,8 @@ function getProducts(){
 	console.log("for lefutott " + i);
 	htmls = fs.readFileSync(pages[i], "utf8");
 	parsePage(htmls)
-	.then(function(){
+	.then(function(prod){
+		console.log(prod)
 		console.log("log5 " + i);
 		i = i + 1;
 		return getProducts();
