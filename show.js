@@ -6,7 +6,7 @@ var Product = require('./Product');
 
 //mongoose
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/whiskyex';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/matth';
 mongoose.connect(db);
 
 //express middleware

@@ -15,7 +15,7 @@ var Promise = require('bluebird');
 mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
-var baseUrl = './p/'
+var baseUrl = './we/www.thewhiskyexchange.com/p/'
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
@@ -142,10 +142,10 @@ function parsePage(html){
 		category: category,
 		sub_category: sub_category,
 		capacity: capacity,
-		approved: true, 
+		approved: true,
 		images: {
 			thumbnail: img
-		} 
+		}
 	});
 	console.log("wur");
 	if (category === undefined || sub_category === undefined ) {
@@ -170,7 +170,7 @@ var i = 0;
 
 function getProducts(){
 	console.log("log4");
-	if (i === 1) { //pages.length
+	if (i === 15) { //pages.length
 		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {

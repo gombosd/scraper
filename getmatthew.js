@@ -1,6 +1,6 @@
 //mongoos
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/bib';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/matth';
 mongoose.connect(db);
 
 var request = require('request-promise')
@@ -11,15 +11,13 @@ var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider'] //, 'soft-drinks', 'ready-to-drink'
-var i = 1;
-var page = i;
-var a = 0;
-var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + page + '&Request.PageSize=36#results'
-
+var pagenumber = 1; //wine-23 ch-2 sp-16
+var a = 2;
+var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + pagenumber + '&Request.OrderBy=Name&Request.PageSize=60#results'
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get(baseUrl)
+	return request.get('http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + pagenumber + '&Request.OrderBy=Name&Request.PageSize=60#results')
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
@@ -41,25 +39,27 @@ function getProducts(page){
 		}).filter(function(page){
 			return page !== false
 		})
-	})  /*
+	})
   .then(function(){
     console.log("Lefutott4");
-    if (i === 1) {
+    if (pagenumber === 16) {
       return console.log("All done")
     }
-    i = i+1;
-    return getProducts(i);
+    pagenumber = pagenumber+1;
+    console.log(pagenumber);
+    return getProducts(pagenumber);
 	})
 	.catch(function(err){
 		console.log(err)
-    i = i+1;
-	}) */
+    pagenumber = pagenumber+1;
+	})
 }
 
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = 'http://www.matthewclark.co.uk' + $('.product-details div .img-responsive').attr('src').toString()
   var category;
+  var sub_category;
   if (cat[a] === 'champagne') {
 	  category = 'wine'
     sub_category = 'champagne'
@@ -73,42 +73,39 @@ function parsePage(html){
   else if (cat[a] === 'beer' || cat[a] === 'cider') {
     category = 'beer'
   }
-  var name = $('.product-name').text().trim(); /*
-	var details =name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
-  var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
-  capacity = capacity.slice(capacity.search('bottle size')+12)
+  var name = $('.cms-content h2').text().trim().slice(0,$('.cms-content h2').text().trim().search("We're a"));
+	var details = $('.product-table li').text().trim().toLowerCase();
+  var det = $($('.breadcrumb li')[3]).text().trim().toLowerCase();
+  var capacity = details.slice(details.search('bottle size:')+13,details.search('list price:'))
 
   if (capacity.search('cl') !== -1) {
-    capacity = capacity.slice(0,capacity.search('cl')-1);
+    capacity = capacity.slice(0,capacity.search('cl'));
     capacity = parseFloat(capacity)*10;
   }
-  else if (capacity.search('litres') !== -1) {
-    capacity = capacity.slice(0,capacity.search('litres')-1)
+  else if (capacity.search('lt') !== -1) {
+    capacity = capacity.slice(0,capacity.search('lt'))
     capacity = parseFloat(capacity)*1000;
   }
+  else if (capacity.search('ml') !== -1) {
+    capacity = capacity.slice(0,capacity.search('lt'))
+    capacity = parseFloat(capacity);
+  }
 	else {
-		capacity = parseFloat(capacity)*100;
+		console.log("err")
 	}
 
-  var sub_category;
 /* //wine sorter
-  if (details.search('red') !== -1 && details.search('still') !== -1) {
+  if (details.search('red') !== -1 && details.search('sparkling') === -1) {
     sub_category = 'red'
   }
-  else if (details.search('white') && details.search('still') !== -1) {
+  else if (details.search('white') && details.search('sparkling') === -1) {
     sub_category = 'white'
   }
-  else if (details.search('rose') && details.search('still') !== -1) {
+  else if (details.search('rosé') && details.search('sparkling') === -1) {
     sub_category = 'rosé'
-  }
-  else if (details.search('champagne') !== -1) {
-    sub_category = 'champagne'
   }
   else if (details.search('sparkling') !== -1) {
     sub_category = 'sparkling'
-  }
-  else if (details.search('sweet') !== -1) {
-    sub_category = 'sweet'
   }
   else if (details.search('fortified') !== -1) {
     sub_category = 'fortified'
@@ -117,35 +114,51 @@ function parsePage(html){
 
   }
 */
-/*
+
 //spirit sorter
-	if ((details + ' ').search(' rum ') !== -1) {
-		sub_category = 'rum';
-		//name = name.slice(details.search(' rum'),details.search(' rum')+5)
+	if ((det + ' ').search('rum') !== -1) {
+    if (details.search('cachaca') !== -1) {
+      sub_category = 'cachaca';
+    }
+    else {
+      sub_category = 'rum';
+    }
 	}
-	else if ((details + ' ').search(' whisky ') !== -1 || (details + ' ').search(' whiskey ') !== -1 || (details + ' ').search(' bourbon ') !== -1) {
+  else if ((det + ' ').search('brandy') !== -1) {
+    if (details.search('brandy') !== -1) {
+      sub_category = 'brandy';
+    }
+    else {
+      //sub_category = 'rum';
+    }
+	}
+	else if ((det + ' ').search('whisky') !== -1 || (det + ' ').search('whiskey') !== -1 || (det + ' ').search('bourbon') !== -1) {
 		sub_category = 'whisky';
 	}
-	else if ((details + ' ').search(' gin ') !== -1) {
+	else if ((det + ' ').search('gin') !== -1) {
 		sub_category = 'gin';
-		//name = name.slice((details + ' ').search('gin')-1,(details + ' ').search('gin')+4)
 	}
-	else if ((details + ' ').search(' vodka ') !== -1) {
+	else if ((det + ' ').search('vodka') !== -1) {
 		sub_category = 'vodka';
-		//name = name.slice((details + ' ').search('vodka')-1,(details + ' ').search('vodka')+4)
 	}
-	else if ((details + ' ').search(' tequila ') !== -1) {
-		sub_category = 'tequila';
-		//name = name.slice((details + ' ').search('tequila')-1,(details + ' ').search('tequila')+4)
+	else if ((det + ' ').search('tequila') !== -1) {
+    if (details.search('tequila') !== -1) {
+      sub_category = 'tequila';
+    }
+    else if (details.search('mezcal') !== -1) {
+      sub_category = 'mezcal';
+    }
+    else {
+
+    }
 	}
-	else if ((details + ' ').search(' cachaca ') !== -1) {
-		sub_category = 'cachaça';
-		//name = name.slice((details + ' ').search('cachaca')-1,(details + ' ').search('cachaca')+4)
+	else if ((det + ' ').search('brandy') !== -1) {
+		sub_category = 'brandy';
 	}
 	else {
-		//console.log(details);
+		//console.log(det);
 	}
-*/
+
  /* //beers
 	if ((details + ' ').search(' pale ale ') !== -1) {
 		sub_category = "pale ale";
@@ -155,7 +168,7 @@ function parsePage(html){
 	}
 	else if ((details + ' ').search(' lager ') !== -1) {
 		sub_category = "lager";
-	}
+	} */
 
 var prod = new Product({
     name: name,
@@ -178,15 +191,12 @@ var prod = new Product({
         return
 		  }
       else {
-        console.log(prod);
+        //console.log(prod);
         return
       }
 		});
-	} */
-  console.log(category);
+    //console.log(prod);
+  }
 }
 
-// össz 40 boros lap Craggy Range Kidnappers Chardonnay 2012
-// össz 3 spirits lap --done
-// össz 1 beer lap --done
-getProducts(i);
+getProducts(pagenumber);
