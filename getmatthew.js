@@ -10,9 +10,9 @@ mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
-var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider'] //, 'soft-drinks', 'ready-to-drink'
-var pagenumber = 1; //wine-23 ch-2 sp-16
-var a = 2;
+var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider', 'soft-drinks'] //, 'ready-to-drink'
+var pagenumber = 1; //wine-23 ch-2 sp-16 beer-9 cid-3 sd-7
+var a = 5;
 var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + pagenumber + '&Request.OrderBy=Name&Request.PageSize=60#results'
 
 function getProducts(page){
@@ -42,7 +42,7 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (pagenumber === 16) {
+    if (pagenumber === 7) {
       return console.log("All done")
     }
     pagenumber = pagenumber+1;
@@ -60,6 +60,7 @@ function parsePage(html){
   var img = 'http://www.matthewclark.co.uk' + $('.product-details div .img-responsive').attr('src').toString()
   var category;
   var sub_category;
+
   if (cat[a] === 'champagne') {
 	  category = 'wine'
     sub_category = 'champagne'
@@ -70,28 +71,44 @@ function parsePage(html){
   else if (cat[a] === 'spirits') {
     category = 'spirit'
   }
-  else if (cat[a] === 'beer' || cat[a] === 'cider') {
+  else if (cat[a] === 'beer') {
     category = 'beer'
   }
+  else if (cat[a] === 'cider') {
+    category = 'beer'
+    sub_category = 'cider'
+  }
+  else if (cat[a] === 'soft-drinks') {
+    category = 'mixer'
+  }
+
   var name = $('.cms-content h2').text().trim().slice(0,$('.cms-content h2').text().trim().search("We're a"));
 	var details = $('.product-table li').text().trim().toLowerCase();
   var det = $($('.breadcrumb li')[3]).text().trim().toLowerCase();
-  var capacity = details.slice(details.search('bottle size:')+13,details.search('list price:'))
+  var capacity = details.slice(details.search('size: ')+6,details.search('code: '))
 
   if (capacity.search('cl') !== -1) {
     capacity = capacity.slice(0,capacity.search('cl'));
     capacity = parseFloat(capacity)*10;
   }
-  else if (capacity.search('lt') !== -1) {
-    capacity = capacity.slice(0,capacity.search('lt'))
-    capacity = parseFloat(capacity)*1000;
-  }
   else if (capacity.search('ml') !== -1) {
-    capacity = capacity.slice(0,capacity.search('lt'))
+    capacity = capacity.slice(0,capacity.search('ml'))
     capacity = parseFloat(capacity);
   }
+  else if (capacity.search('gal') !== -1) {
+    capacity = capacity.slice(0,capacity.search('gal'))
+    capacity = parseFloat(capacity)*3785.41178;
+  }
+  else if (capacity.search('l ') !== -1) {
+    capacity = capacity.slice(0,capacity.search('l '))
+    capacity = parseFloat(capacity)*1000;
+  }
+  else if (capacity.search('lt ') !== -1) {
+    capacity = capacity.slice(0,capacity.search('lt '))
+    capacity = parseFloat(capacity)*1000;
+  }
 	else {
-		console.log("err")
+		console.log("Nem ismert capacity: " + name)
 	}
 
 /* //wine sorter
@@ -114,7 +131,7 @@ function parsePage(html){
 
   }
 */
-
+/*
 //spirit sorter
 	if ((det + ' ').search('rum') !== -1) {
     if (details.search('cachaca') !== -1) {
@@ -158,17 +175,44 @@ function parsePage(html){
 	else {
 		//console.log(det);
 	}
-
- /* //beers
-	if ((details + ' ').search(' pale ale ') !== -1) {
+*/ /*
+  //beers
+	if ((details).search('pale ale') !== -1) {
 		sub_category = "pale ale";
 	}
-	else if ((details + ' ').search(' ale ') !== -1) {
+	else if ((details).search('ale') !== -1) {
 		sub_category = "ale";
 	}
-	else if ((details + ' ').search(' lager ') !== -1) {
+	else if ((details).search('lager') !== -1) {
 		sub_category = "lager";
-	} */
+	}
+  else if ((details).search('porter') !== -1) {
+		sub_category = "porter";
+	}
+  else {
+    //console.log(details)
+  }
+*/
+
+if ((details).search('water') !== -1 || (details).search('syphon') !== -1) {
+  sub_category = "water";
+}
+else if ((details).search('energy') !== -1 || (details).search('sport') !== -1){
+  sub_category = "energy";
+}
+else if ((details).search('juice') !== -1 && (details).search('draught') === -1) {
+  sub_category = "juices";
+}
+else if ((details).search('tetra packs') !== -1) {
+  sub_category = "juices";
+}
+else if ((details).search('packaged') !== -1) {
+  sub_category = "soft drinks & mixers";
+}
+else {
+  //console.log(details)
+}
+
 
 var prod = new Product({
     name: name,
@@ -180,7 +224,6 @@ var prod = new Product({
 		capacity: capacity,
 		approved: true
   })
-
   if (sub_category === undefined ||  capacity === 0) {
 		return false;
 	}
@@ -195,7 +238,7 @@ var prod = new Product({
         return
       }
 		});
-    //console.log(prod);
+  //  console.log(prod);
   }
 }
 

@@ -51,6 +51,25 @@ app.post('/listing', function(req, res){
 	})
 });
 
+app.delete('/delcat', function(req, res){
+	Product.find({}, function(err, prod){
+		if(err || !req.body.category){
+			return res.json("Lol, it lookes like something went wrong!");
+		}
+		for (var i = 0; i < prod.length; i++) {
+			if (prod[i].category === req.body.category) {
+				var lol = prod[i].name
+				prod[i].remove(function(err){
+					if (err) {
+						return console.log(err);
+					}
+					console.log(lol + " deleted");
+				});
+			}
+		}
+	})
+});
+
 //app listener
 app.listen(process.env.PORT || 3600, function () {
   console.log('Listening on port 3600!');
