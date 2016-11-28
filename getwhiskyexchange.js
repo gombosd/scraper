@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var fs = require("fs");
 var Product = require('./Product');
 // var express = require('express');
-
+console.log("log");
 //mongoos
 var mongoose = require('mongoose');
 var db = process.env.MONGODB_URI || 'mongodb://localhost/whiskyex';
@@ -15,12 +15,12 @@ var Promise = require('bluebird');
 mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
-var baseUrl = './we/www.thewhiskyexchange.com/p/'
+var baseUrl = './p2/' ///we/www.thewhiskyexchange.com/
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
 		var ids = fs.readdirSync(baseUrl);
-		for (var i = 0; i < ids.length; i++) {
+		for (var i = 0; i < ids.length; i++) { //ids.length
 			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
 		}
 		console.log("log1");
@@ -34,7 +34,7 @@ function parsePage(html){
 	var $ = cheerio.load(html);
   var category;
 	var sub_category;
-	var img = $('#productDefaultImage img').attr('data-original').toString();
+	var img = $('#productDefaultImage img').attr('data-original');
 	var header = $('.breadcrumb-list').text().toLowerCase().trim().slice(5);
 	var wtype = $('#prodMeta dl dd').text().toLowerCase();
 	var name = $($('script')[9]).text().trim();
@@ -170,7 +170,7 @@ var i = 0;
 
 function getProducts(){
 	console.log("log4");
-	if (i === 15) { //pages.length
+	if (i === 13) { //pages.length
 		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {
