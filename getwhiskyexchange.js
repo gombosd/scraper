@@ -20,7 +20,7 @@ var baseUrl = './p2/' ///we/www.thewhiskyexchange.com/
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
 		var ids = fs.readdirSync(baseUrl);
-		for (var i = 0; i < ids.length; i++) { //ids.length
+		for (var i = 0; i < 175; i++) { //ids.length
 			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
 		}
 		console.log("log1");
@@ -66,10 +66,6 @@ function parsePage(html){
 	}
 	else if (header.search("bitters") !== -1) {
 		sub_category = "bitters";
-		category = "spirit";
-	}
-	else if (header.search("brandy") !== -1) {
-		sub_category = "brandy";
 		category = "spirit";
 	}
 	else if (header.search("brandy") !== -1) {
@@ -152,16 +148,17 @@ function parsePage(html){
 		console.log("log3");
 		return Promise.reject()
 	}
-	else {/*
-		prod.save(function (err) {
+	else {
+		return prod.save(function (err) {
 		  if (err) {
-		    console.log(err);
+		    console.log("jipp" + err);
+				return Promise.reject()
 		  }
-		}) */
+			console.log(prod);
+		})
 
 		// var lol = $('#productDefaultImage img').attr()
 		// console.log(lol['data-original']);
-		return prod.save()
 	}
 }
 var htmls;
@@ -170,7 +167,7 @@ var i = 0;
 
 function getProducts(){
 	console.log("log4");
-	if (i === 13) { //pages.length
+	if (i === pages.length) { //pages.length
 		return console.log("All done");
 	}
 	if (pages[i].search('\,') !== -1) {
@@ -179,14 +176,13 @@ function getProducts(){
 	console.log("for lefutott " + i);
 	htmls = fs.readFileSync(pages[i], "utf8");
 	parsePage(htmls)
-	.then(function(prod){
-		console.log(prod)
+	.then(function(){
 		console.log("log5 " + i);
 		i = i + 1;
 		return getProducts();
 	})
 	.catch(function(err){
-		console.log(err)
+		console.log("jopp" + err)
 		i = i + 1;
 		return getProducts()
 	})
