@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var Promise = require('bluebird');
 var fs = require("fs");
 var Product = require('./Product');
+
 // var express = require('express');
 console.log("log");
 //mongoos
@@ -15,7 +16,7 @@ var Promise = require('bluebird');
 mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
-var baseUrl = './p2/' ///we/www.thewhiskyexchange.com/
+var baseUrl = './p/' ///we/www.thewhiskyexchange.com/
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
