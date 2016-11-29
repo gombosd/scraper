@@ -16,15 +16,15 @@ var Promise = require('bluebird');
 mongoose.Promise = Promise;
 Promise.promisifyAll(mongoose);
 
-var baseUrl = './p/' ///we/www.thewhiskyexchange.com/
+var baseUrl = './p/' // /we/www.thewhiskyexchange.com/
 
 var _getAllFilesFromFolder = function(dir) {
 		var htmls = [];
 		var ids = fs.readdirSync(baseUrl);
 		for (var i = 0; i < ids.length; i++) { //ids.length
-			htmls.push(baseUrl + ids[i] + '/' + fs.readdirSync(baseUrl + ids[i]))
+			htmls.push(baseUrl + ids[i])
 		}
-		console.log("log1");
+		console.log("kk");
     return htmls;
 };
 
@@ -150,7 +150,7 @@ function parsePage(html){
 		return Promise.reject()
 	}
 	else {
-		return prod.save(function (err) {
+		return  prod.save(function (err) {
 		  if (err) {
 		    console.log("jipp" + err);
 				return Promise.reject()

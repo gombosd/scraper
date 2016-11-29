@@ -18,8 +18,12 @@ app.get('/', function(req, res){
 		if(err){
 			return res.json(err);
 		}
+		var kk = [];
+		for (var i = 0; i < prod.length; i++) {
+			kk.push(prod[i].images.thumbnail)
+		}
     console.log(prod.length);
-		res.json(prod);
+		res.json(kk);
 	})
 });
 
