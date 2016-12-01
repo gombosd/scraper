@@ -1,16 +1,25 @@
+//mongoos
+var mongoose = require('mongoose');
+var db = process.env.MONGODB_URI || 'mongodb://localhost/amath4';
+mongoose.connect(db);
+
 var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
-var mongoose = require('mongoose')
 mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrl = 'http://www.amathusdrinks.com/catalog/seo_sitemap/product/?p='
 
+var i = 29;
+var max = 46;
+
 function getProducts(page){
-	return request.get(baseUrl +  page)
+  console.log("Lefutott");
+	return request.get(baseUrl + page)
 	.then(function(results){
+    console.log("Lefutott2");
 		var $ = cheerio.load(results)
 		var links = []
 		$('.sitemap li a').each(function(i, el){
@@ -19,16 +28,30 @@ function getProducts(page){
 		return links
 	})
 	.then(function(links){
+    console.log("Lefutott: " + i + "szer!");
 		return Promise.all(links.map(function(link){
 			return request.get(link)
 		}))
 	})
 	.then(function(productPages){
+    console.log("Lefutott3");
 		return productPages.map(function(page){
 			return parsePage(page)
 		}).filter(function(page){
 			return page !== false
 		})
+	})
+  .then(function(){
+    console.log("Lefutott4");
+    if (i === max) {
+      return console.log("All done")
+    }
+    i = i+1;
+    return getProducts(i);
+	})
+	.catch(function(err){
+		console.log(err)
+    i = i+1;
 	})
 }
 
@@ -45,9 +68,9 @@ function parsePage(html){
 		if(['spirits','wines','liqueurs','beers'].indexOf(sub_category) > -1){
 			category = $($('.breadcrumbs li')[4]).text().trim().toLowerCase().slice(0, -1)
 		} else {
-			category = undefined
+			category = ''
 		}
-		sub_category = undefined
+		sub_category = ''
 	}
 
 	var measurable = category === 'spirit' || category === 'liqueur' ? true : false
@@ -83,51 +106,38 @@ function parsePage(html){
 			capacity = capacity.slice(0,-1) * 10
 	}
 
-	if (category !== undefined && sub_category !== undefined) {
-		return {
-			name: $('.product-header-name h2').text().trim(),
-			type: 'beverage',
-			category: category,
-			sub_category: sub_category,
-			images: {
-				thumbnail: $('#zoomimage img').attr('src').replace('/1/image/275x378/','/1/thumbnail/275x/'),
-				normal: $('#zoomimage').attr('href')
-			},
-			capacity: capacity,
-			approved: true
-		}
+	var name = $('.product-header-name h2').text().trim()
+
+	var prod = new Product({
+		name: name,
+		category: category,
+		sub_category: sub_category,
+		images: {
+			thumbnail: $('#zoomimage img').attr('src').replace('/1/image/275x378/','/1/thumbnail/275x/'),
+			normal: $('#zoomimage').attr('href')
+		},
+		capacity: capacity,
+		approved: true
+	})
+
+	console.log("wur");
+	if (category === '' || sub_category === '' ) {
+		console.log("log3");
+		return Promise.reject()
 	}
 	else {
-		return Promise.reject();
-	}
+		return prod.save(function (err) {
+		  if (err) {
+		    console.log("jipp" + err);
+				return Promise.reject()
+		  }
+			//console.log(prod);
+		});
+
+		// var lol = $('#productDefaultImage img').attr()
+     //console.log(prod);
+	};
+};
 
 
-}
-
-function saveProducts(page_num) {
-	if(page_num === 46){
-		return console.log('All saved')
-	}
-	getProducts(page_num)
-	.then(function(products){
-		return Product.create(products)
-	})
-	.then(function(response){
-		console.log('Saved page: ' + page_num)
-		saveProducts(++page_num)
-	})
-	.catch(function(err){
-		console.log(err)
-		saveProducts(++page_num)
-	})
-}
-
-// connect to mongo db
-mongoose.connect('mongodb://localhost/kk', { server: { socketOptions: { keepAlive: 1 } } });
-mongoose.connection.on('error', function(){
-  throw new Error('unable to connect to database: ${config.db}');
-})
-mongoose.connection.on('connected', function(){
-	console.log('connected')
-	saveProducts(1)
-})
+getProducts(i);

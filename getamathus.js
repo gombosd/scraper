@@ -83,8 +83,10 @@ function parsePage(html){
 			capacity = capacity.slice(0,-1) * 10
 	}
 
-	return {
-		name: $('.product-header-name h2').text().trim(),
+	var name = $('.product-header-name h2').text().trim()
+
+	var prod = new Product({
+		name: name,
 		type: 'beverage',
 		category: category,
 		sub_category: sub_category,
@@ -93,9 +95,15 @@ function parsePage(html){
 			normal: $('#zoomimage').attr('href')
 		},
 		capacity: capacity,
-		measurable: measurable,
-		approved: true,
-		sku: $('.sku').text().trim().split(' ')[1]
+		approved: true
+	})
+
+
+	if (category !== '' && sub_category !== '') {
+		return prod
+	}
+	else {
+		return Promise.reject();
 	}
 }
 
@@ -118,7 +126,7 @@ function saveProducts(page_num) {
 }
 
 // connect to mongo db
-mongoose.connect('mongodb://localhost/amath', { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect('mongodb://localhost/amath3', { server: { socketOptions: { keepAlive: 1 } } });
 mongoose.connection.on('error', function(){
   throw new Error('unable to connect to database: ${config.db}');
 })
