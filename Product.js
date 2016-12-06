@@ -10,6 +10,12 @@ var ProductSchema = new mongoose.Schema({
     required: true,
     index: 'text'
   },
+  new: {
+    type: Boolean
+  },
+  oid: {
+    type: String
+  },
   shortname: {
     type: String,
   },
