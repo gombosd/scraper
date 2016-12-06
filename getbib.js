@@ -11,20 +11,21 @@ var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-//var baseUrle = '&product_type=4046' // wines
+var baseUrle = '&product_type=4046' // wines
 //var baseUrle = '&product_type=4045' // spirits
-var baseUrle = '&product_type=4047' // beers
+//var baseUrle = '&product_type=4047' // beers
 
 var i = 1;
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get(baseUrlb +  page + baseUrle)
+	return request.get('http://www.bibendum-wine.co.uk/shop?limit=30&p=' +  page + '&product_type=4046')
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
 		var links = []
-		$('#js-product-list div figure a').each(function(i, el){
+		$('.category-products ul li > a').each(function(i, el){
+      //console.log("Link: ",$(this).attr('href').toString());
 			links.push($(this).attr('href').toString())
 		})
 		return links
@@ -45,7 +46,7 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (i === 1) {
+    if (i === 40) {
       return console.log("All done")
     }
     i = i+1;
@@ -60,9 +61,9 @@ function getProducts(page){
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = $('.product-image img').attr('src').toString()
-	var category = "beer"
+	var category = "wine"
   var name = $('.product-name').text().trim();
-	var details =name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
+	var details = $($('.attributes_1 li span')).text().trim().toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
 
@@ -79,14 +80,15 @@ function parsePage(html){
 	}
 
   var sub_category;
-/* //wine sorter
+ //wine sorter
+ //console.log("details: " + details);
   if (details.search('red') !== -1 && details.search('still') !== -1) {
     sub_category = 'red'
   }
-  else if (details.search('white') && details.search('still') !== -1) {
+  else if (details.search('white') !== -1 && details.search('still') !== -1) {
     sub_category = 'white'
   }
-  else if (details.search('rose') && details.search('still') !== -1) {
+  else if (details.search('rose') !== -1 && details.search('still') !== -1) {
     sub_category = 'rosé'
   }
   else if (details.search('champagne') !== -1) {
@@ -104,7 +106,7 @@ function parsePage(html){
   else {
 
   }
-*/
+
 /*
 //spirit sorter
 	if ((details + ' ').search(' rum ') !== -1) {
@@ -133,7 +135,7 @@ function parsePage(html){
 	else {
 		//console.log(details);
 	}
-*/
+
 //beers
 	if ((details + ' ').search(' pale ale ') !== -1) {
 		sub_category = "pale ale";
@@ -144,7 +146,7 @@ function parsePage(html){
 	else if ((details + ' ').search(' lager ') !== -1) {
 		sub_category = "lager";
 	}
-
+*/
 var prod = new Product({
     name: name,
 		category: category,
@@ -155,8 +157,9 @@ var prod = new Product({
 		capacity: capacity,
 		approved: true
   })
-
+  console.log("menteshez keszul");
   if (sub_category === undefined ||  capacity === 0) {
+    console.log("hiba, nincs sub_category");
 		return false;
 	}
   else {
@@ -166,10 +169,11 @@ var prod = new Product({
         return
 		  }
       else {
-        console.log(prod);
+        console.log("saved");
         return
       }
 		});
+    //console.log("saved");
 	}
 }
 

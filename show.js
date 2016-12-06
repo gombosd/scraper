@@ -71,6 +71,6 @@ app.delete('/delcat', function(req, res){
 });
 
 //app listener
-app.listen(process.env.PORT || 3600, function () {
-  console.log('Listening on port 3600!');
+app.listen(process.env.PORT || 3500, function () {
+  console.log('Listening on port 3500!');
 });

@@ -12,7 +12,7 @@ Promise.promisifyAll(mongoose);
 
 var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider', 'soft-drinks'] //, 'ready-to-drink'
 var pagenumber = 1; //wine-23 ch-2 sp-16 beer-9 cid-3 sd-7
-var a = 5;
+var a = 1;
 var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + pagenumber + '&Request.OrderBy=Name&Request.PageSize=60#results'
 
 function getProducts(page){
@@ -42,7 +42,7 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (pagenumber === 7) {
+    if (pagenumber === 2) {
       return console.log("All done")
     }
     pagenumber = pagenumber+1;
@@ -111,14 +111,14 @@ function parsePage(html){
 		console.log("Nem ismert capacity: " + name)
 	}
 
-/* //wine sorter
+ //wine sorter
   if (details.search('red') !== -1 && details.search('sparkling') === -1) {
     sub_category = 'red'
   }
-  else if (details.search('white') && details.search('sparkling') === -1) {
+  else if (details.search('white') !== -1 && details.search('sparkling') === -1) {
     sub_category = 'white'
   }
-  else if (details.search('rosé') && details.search('sparkling') === -1) {
+  else if (details.search('rosé') !== -1 && details.search('sparkling') === -1) {
     sub_category = 'rosé'
   }
   else if (details.search('sparkling') !== -1) {
@@ -130,7 +130,7 @@ function parsePage(html){
   else {
 
   }
-*/
+
 /*
 //spirit sorter
 	if ((det + ' ').search('rum') !== -1) {
@@ -192,7 +192,7 @@ function parsePage(html){
   else {
     //console.log(details)
   }
-*/
+
 
 if ((details).search('water') !== -1 || (details).search('syphon') !== -1) {
   sub_category = "water";
@@ -212,7 +212,7 @@ else if ((details).search('packaged') !== -1) {
 else {
   //console.log(details)
 }
-
+*/
 
 var prod = new Product({
     name: name,
