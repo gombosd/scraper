@@ -10,10 +10,13 @@ mongoose.Promise = Promise
 var Product = require('./Product')
 Promise.promisifyAll(mongoose);
 
-var cat = ['97', '98', '100', '101', '103', '120', '174'] // wines
-var sc = ['red', 'white', 'champagne', 'dessert', 'sparkling', 'fortified', 'rosé'];
-var pagenumber = 1; //83 58 11 5 8 9 7 --wines
-var a = 0; //0-d
+//var cat = ['97', '98', '100', '101', '103', '120', '174'] // wines
+//var sc = ['red', 'white', 'champagne', 'dessert', 'sparkling', 'fortified', 'rosé'];
+var cat = ['137','138','140','145','148','151'];
+var sc = ['gin','rum','vodka','brandy','whiskey','whiskey']
+//var pagenumber = 1; //83 58 11 5 8 9 7 --wines
+var pagenumber = 1; //18 17 15 8 12 13 --spirits
+var a = 5; //0-d 1-d 2-d 3-d 4-d 5-d
 
 function getProducts(page){
   console.log("Lefutott");
@@ -42,7 +45,7 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (pagenumber === 83) {
+    if (pagenumber === 13) {
       return console.log("All done")
     }
     pagenumber = pagenumber+1;
@@ -58,7 +61,7 @@ function getProducts(page){
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = $('.product-img-box img').attr('src')
-  var category = "wine"
+  var category = "spirit"
   var sub_category = sc[a]
 
   var name = $('.product-name h1').text().trim();
