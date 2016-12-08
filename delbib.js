@@ -8,20 +8,20 @@ var db = process.env.MONGODB_URI || 'mongodb://localhost/Products';
 
     Product.find({}, function(err, prod){
         for (var i = 0; i < prod.length; i++) {
-          if (prod[i].images.thumbnail === undefined && prod[i].images.normal === undefined) {
-            list.push(prod[i]._id)
-          }
+          if (prod[i].images.thumbnail.search('www.amathusdrinks.com') !== -1) {
+            list.push(prod[i].sub_category)
+          }/*
           else {
           //console.log(prod[i].images.thumbnail);
-            if (prod[i].images.thumbnail.search("www.matthewclark.co.uk") !== -1 && prod[i].category === "wine") {
+            if (  prod[i].images.thumbnail === ("http://www.matthewclark.co.uk/images/default-image.png")) {
               list.push(prod[i]._id)
             }
-          }
+          } */
         }
-        console.log(list, list.length);
+        console.log(list, list.length, prod.length);/*
         Product.remove({_id: {$in: list}}, function(err, prod){
           console.log(prod);
-        });
+        }); */
       })
       //console.log(prod);
 
