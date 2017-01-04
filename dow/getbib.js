@@ -7,20 +7,20 @@ var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
 mongoose.Promise = Promise
-var Product = require('./Product')
+var Product = require('../Product')
 Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
-var baseUrle = '&product_type=4046' // wines
-//var baseUrle = '&product_type=4045' // spirits
+//var baseUrle = '&product_type=4046' // wines -d
+var baseUrle = '&product_type=4045' // spirits
 //var baseUrle = '&product_type=4047' // beers
 
 var i = 1;
-var max = 40;
+var max = 3;
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get('http://www.bibendum-wine.co.uk/shop?limit=30&p=' +  page + '&product_type=4046')
+	return request.get('http://www.bibendum-wine.co.uk/shop?limit=30&p=' +  page + '&product_type=4045')
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
@@ -62,9 +62,9 @@ function getProducts(page){
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = $('.product-image img').attr('src').toString()
-	var category = "wine"
+	var category = "spirits"
   var name = $('.product-name').text().trim();
-	var details = $($('.attributes_1 li span')).text().trim().toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
+	var details = name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
   capacity = capacity.slice(capacity.search('bottle size')+12)
 
@@ -80,9 +80,11 @@ function parsePage(html){
 		capacity = parseFloat(capacity)*100;
 	}
 
+  var country = $($('.attributes_1 li')).text().trim().toLowerCase();
   var sub_category;
  //wine sorter
- console.log("details: " + details);
+ //console.log("details: " + details);
+ /*
   if (details.search('red') !== -1 && details.search('still') !== -1) {
     sub_category = 'red'
   }
@@ -107,14 +109,19 @@ function parsePage(html){
   else {
     sub_category = 'other'
   }
+*/
 
-/*
 //spirit sorter
 	if ((details + ' ').search(' rum ') !== -1) {
 		sub_category = 'rum';
 	}
 	else if ((details + ' ').search(' whisky ') !== -1 || (details + ' ').search(' whiskey ') !== -1 || (details + ' ').search(' bourbon ') !== -1) {
-		sub_category = 'whisky';
+    if (country.search('usa') !== -1){
+      sub_category = 'american whiskey';
+    }
+    else {
+      sub_category = 'scotch whiskey';
+    }
 	}
 	else if ((details + ' ').search(' gin ') !== -1) {
 		sub_category = 'gin';
@@ -134,20 +141,23 @@ function parsePage(html){
 	else if ((details + ' ').search(' cachaca ') !== -1) {
 		sub_category = 'cachaca';
 	}
+	else if ((details + ' ').search(' cognac ') !== -1) {
+		sub_category = 'cognac';
+	}
 	else {
 		sub_category = 'other';;
 	}
-
+/*
 //beers
 		sub_category = "bottled";
-
 */
+
 var prod = new Product({
     name: name,
 		category: category,
 		sub_category: sub_category,
     images: {
-      thumbnail: img
+      normal: img
     },
 		capacity: capacity,
 		approved: true
