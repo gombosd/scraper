@@ -7,18 +7,18 @@ var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
 mongoose.Promise = Promise
-var Product = require('./Product')
+var Product = require('../Product')
 Promise.promisifyAll(mongoose);
 
 //var cat = ['97', '98', '100', '101', '103', '120', '174'] // wines
 //var sc = ['red', 'white', 'champagne', 'dessert', 'sparkling', 'fortified', 'rosé'];
 //var cat = ['137','138','140','145','148','151','159','169','170','171','172','136'];
-//var sc = ['gin','rum','vodka','brandy','whiskey','whiskey','tequila','mezcal','absinthe','cachaça','pisco','other']
-//var pagenumber = 1; //83 58 11 5 8 9 7 --wines
+//var sc = ['gin','rum','vodka','brandy','other whiskey','scotch whiskey','tequila','mezcal','other','cachaca','other','other']
+//var pagenumber = 1; //84 60 11 5 8 9 8 --wines
 var cat = ['142']
 var sc = ['other']
-var pagenumber = 1; //18 17 15 8 12 13 | 7 2 1 2, 1, 6 --spirits
-var a = 0; //0-d 1-d 2-d 3-d 4-d 5-d | 6-d 7-d 8-d 9-d 10-d 11-d
+var pagenumber = 1; //18 17 15 8 12 13 | 7 2 1 2 1 6 --spirits
+var a = 0; //0 1 2 3 4 5 6 wines | 0 1 2 3 4 5 6 7 8 9 10
 
 function getProducts(page){
   console.log("Lefutott");
@@ -71,13 +71,18 @@ function parsePage(html){
   var capacity = details.slice(details.search('bottle:')+7,details.search('0cl'))
   capacity = parseFloat(capacity.trim())*10;
   //console.log(img);
+  var country = $('.country').text().toLowerCase();
+
+  if (country.search('united states') !== -1) {
+    sub_category = "american whiskey"
+  }
 
 var prod = new Product({
     name: name,
 		category: category,
 		sub_category: sub_category,
     images: {
-      thumbnail: img
+      normal: img
     },
 		capacity: capacity,
 		approved: true
