@@ -7,7 +7,7 @@ var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
 mongoose.Promise = Promise
-var Product = require('./Product')
+var Product = require('../Product')
 Promise.promisifyAll(mongoose);
 
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/304/blended-scotch-whisky' //19 -d
@@ -19,26 +19,29 @@ Promise.promisifyAll(mongoose);
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/35/japanese-whisky' //2 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/305/rest-of-the-world-whisky' //9 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/306/scotch-whisky-decanters' //3 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/385/miniatures' //17 -d
-var baseUrl = 'https://www.thewhiskyexchange.com/c/351/cognac' //24
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/385/miniatures' //17 -n
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/351/cognac' //24 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/355/armagnac' //7 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/338/gin' //21 -d
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/338/gin' //2 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/335/vodka' //20 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/358/absinthe' //2 -d
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/358/absinthe' //2 ?
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/343/liqueurs' //45 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/366/other-spirits' //16 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/365/vermouths-and-aperitifs' //13 -d
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/366/other-spirits' //16
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/365/vermouths-and-aperitifs' //13
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/330/champagne' //15 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/378/fortified-wine' //9 -d
 //var baseUrl = 'https://www.thewhiskyexchange.com/c/40/single-malt-scotch-whisky' //134 -d
-//var baseUrl = 'https://www.thewhiskyexchange.com/c/348/soft-drinks-and-syrups' //10 -d
+//var baseUrl = 'https://www.thewhiskyexchange.com/c/348/soft-drinks-and-syrups' //10
 
-var i = 8;
-var max = 24;
+var i = 1;
+var max = 13;
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get(baseUrl + '?pg=' +  page)
+	return request({
+    method: 'GET',
+    uri: baseUrl + '?pg=' +  page
+  })
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
@@ -79,8 +82,8 @@ function getProducts(page){
 function parsePage(html){
 	var $ = cheerio.load(html);
 
-  var category;
-	var sub_category;
+  var category = "liqueur"
+	var sub_category = "other"
 	var img = $('#productDefaultImage img').attr('data-original');
 	var header = $('.breadcrumb__list').text().toLowerCase().trim().slice(5);
 	var wtype = $('#prodMeta dl dd').text().toLowerCase();
@@ -88,6 +91,16 @@ function parsePage(html){
 	name = name.slice(name.search('(\\n)')+2)
 	name = name.slice(0,name.search('(\\r)'))
 	name = name.trim()
+
+  var meta = $('#prodMeta').text().toLowerCase()
+  if (meta.search("vermouth") !== -1 || meta.search("china") !== -1) {
+    category = "wine"
+    sub_category = "fortified"
+  }
+  else if (meta.search("fernet") !== -1 || meta.search("bitter") !== -1) {
+    category = "spirit"
+    sub_category = "bitters"
+  }
 
 	var capacity = $($('.strength')).text().trim();
 	if (capacity.search('cl') !== -1) {
@@ -201,9 +214,11 @@ else if (header.search("soft drinks and mixers") === -1) {
   category = "mixer";
 }
 */
-
+/*
 category = "liqueur"
 sub_category = "spirits"
+*/
+
 
 	var prod = new Product ({
 		name: name,
@@ -212,7 +227,7 @@ sub_category = "spirits"
 		capacity: capacity,
 		approved: true,
 		images: {
-			thumbnail: img
+			normal: img
 		}
 	});
 	console.log("wur");

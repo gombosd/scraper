@@ -65,6 +65,7 @@ function parsePage(html){
   var img = $('.product-img-box img').attr('src')
   var category = "liqueur"
   var sub_category = sc[a]
+  
 
   var name = $('.product-name h1').text().trim();
 	var details = $('.wine-information').text().trim().toLowerCase();

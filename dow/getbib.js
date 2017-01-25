@@ -12,15 +12,15 @@ Promise.promisifyAll(mongoose);
 
 var baseUrlb = 'http://www.bibendum-wine.co.uk/shop?limit=30&p='
 //var baseUrle = '&product_type=4046' // wines -d
-var baseUrle = '&product_type=4045' // spirits
+//var baseUrle = '&product_type=4045' // spirits
 //var baseUrle = '&product_type=4047' // beers
-
+var baseUrle = '&product_type=4050' // liqueurs
 var i = 1;
-var max = 3;
+var max = 1;
 
 function getProducts(page){
   console.log("Lefutott");
-	return request.get('http://www.bibendum-wine.co.uk/shop?limit=30&p=' +  page + '&product_type=4045')
+	return request.get('http://www.bibendum-wine.co.uk/shop?limit=30&p=' +  page + '&product_type=4050')
 	.then(function(results){
     console.log("Lefutott2");
 		var $ = cheerio.load(results)
@@ -62,7 +62,7 @@ function getProducts(page){
 function parsePage(html){
 	var $ = cheerio.load(html)
   var img = $('.product-image img').attr('src').toString()
-	var category = "spirits"
+	var category = "liqueur"
   var name = $('.product-name').text().trim();
 	var details = name.toLowerCase(); //name.toLowerCase(); // $($('.attributes_1 li span')).text().trim().toLowerCase();
   var capacity = $($('.attributes_1 li')).text().trim().toLowerCase();
@@ -81,7 +81,7 @@ function parsePage(html){
 	}
 
   var country = $($('.attributes_1 li')).text().trim().toLowerCase();
-  var sub_category;
+  var sub_category = "other"
  //wine sorter
  //console.log("details: " + details);
  /*
@@ -110,7 +110,7 @@ function parsePage(html){
     sub_category = 'other'
   }
 */
-
+/*
 //spirit sorter
 	if ((details + ' ').search(' rum ') !== -1) {
 		sub_category = 'rum';
@@ -146,7 +146,7 @@ function parsePage(html){
 	}
 	else {
 		sub_category = 'other';;
-	}
+	} */
 /*
 //beers
 		sub_category = "bottled";

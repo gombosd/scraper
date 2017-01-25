@@ -7,12 +7,12 @@ var request = require('request-promise')
 var cheerio = require('cheerio')
 var Promise = require('bluebird')
 mongoose.Promise = Promise
-var Product = require('./Product')
+var Product = require('../Product')
 Promise.promisifyAll(mongoose);
 
 var cat = ['wine', 'champagne', 'spirits', 'beer', 'cider', 'soft-drinks'] //, 'ready-to-drink'
 var pagenumber = 1; //wine-23 ch-2 sp-16 beer-9 cid-3 sd-7
-var a = 1;
+var a = 5;
 var baseUrl = 'http://www.matthewclark.co.uk/products/' + cat[a] + '/?page=' + pagenumber + '&Request.OrderBy=Name&Request.PageSize=60#results'
 
 function getProducts(page){
@@ -42,7 +42,7 @@ function getProducts(page){
 	})
   .then(function(){
     console.log("Lefutott4");
-    if (pagenumber === 2) {
+    if (pagenumber === 7) {
       return console.log("All done")
     }
     pagenumber = pagenumber+1;
@@ -60,6 +60,8 @@ function parsePage(html){
   var img = 'http://www.matthewclark.co.uk' + $('.product-details div .img-responsive').attr('src').toString()
   var category;
   var sub_category;
+  var country = $('.product-table').text().toLowerCase().trim()
+  //console.log(country);
 
   if (cat[a] === 'champagne') {
 	  category = 'wine'
@@ -73,13 +75,14 @@ function parsePage(html){
   }
   else if (cat[a] === 'beer') {
     category = 'beer'
+    sub_category = "bottled"
   }
   else if (cat[a] === 'cider') {
     category = 'beer'
-    sub_category = 'cider'
+    sub_category = "bottled"
   }
   else if (cat[a] === 'soft-drinks') {
-    category = 'mixer'
+    category = 'softdrinks'
   }
 
   var name = $('.cms-content h2').text().trim().slice(0,$('.cms-content h2').text().trim().search("We're a"));
@@ -104,13 +107,14 @@ function parsePage(html){
     capacity = parseFloat(capacity)*1000;
   }
   else if (capacity.search('lt ') !== -1) {
-    capacity = capacity.slice(0,capacity.search('lt '))
+    capacity = capacity.slice(0,capacity.search('lt'))
     capacity = parseFloat(capacity)*1000;
   }
 	else {
-		console.log("Nem ismert capacity: " + name)
+		console.log("Nem ismert capacity: " + name, img)
+    capacity = 0;
 	}
-
+/*
  //wine sorter
   if (details.search('red') !== -1 && details.search('sparkling') === -1) {
     sub_category = 'red'
@@ -128,9 +132,9 @@ function parsePage(html){
     sub_category = 'fortified'
   }
   else {
-
+    sub_category = 'other'
   }
-
+*/
 /*
 //spirit sorter
 	if ((det + ' ').search('rum') !== -1) {
@@ -146,11 +150,21 @@ function parsePage(html){
       sub_category = 'brandy';
     }
     else {
-      //sub_category = 'rum';
+      sub_category = 'other';
     }
 	}
 	else if ((det + ' ').search('whisky') !== -1 || (det + ' ').search('whiskey') !== -1 || (det + ' ').search('bourbon') !== -1) {
-		sub_category = 'whisky';
+    if (country.search(" usa") !== -1) {
+      sub_category = 'american whiskey';
+      console.log(country);
+    }
+    else if (country.search(" scotland") !== -1) {
+      sub_category = 'scotch whiskey';
+      console.log(country);
+    }
+    else {
+      sub_category = 'other whiskey';
+    }
 	}
 	else if ((det + ' ').search('gin') !== -1) {
 		sub_category = 'gin';
@@ -166,16 +180,13 @@ function parsePage(html){
       sub_category = 'mezcal';
     }
     else {
-
+      sub_category = 'other';
     }
 	}
-	else if ((det + ' ').search('brandy') !== -1) {
-		sub_category = 'brandy';
-	}
 	else {
-		//console.log(det);
+		sub_category = 'other';
 	}
-*/ /*
+
   //beers
 	if ((details).search('pale ale') !== -1) {
 		sub_category = "pale ale";
@@ -192,39 +203,46 @@ function parsePage(html){
   else {
     //console.log(details)
   }
-
+*/
 
 if ((details).search('water') !== -1 || (details).search('syphon') !== -1) {
   sub_category = "water";
 }
 else if ((details).search('energy') !== -1 || (details).search('sport') !== -1){
-  sub_category = "energy";
+  sub_category = "mixer";
 }
-else if ((details).search('juice') !== -1 && (details).search('draught') === -1) {
+else if ((details).search('cordial') !== -1){
+  sub_category = "cordial";
+}
+else if ((details).search('juice') !== -1) {
   sub_category = "juices";
+}
+else if ((details).search('pure') !== -1) {
+  sub_category = "pure";
 }
 else if ((details).search('tetra packs') !== -1) {
   sub_category = "juices";
 }
 else if ((details).search('packaged') !== -1) {
-  sub_category = "soft drinks & mixers";
+  sub_category = "mixer";
 }
 else {
-  //console.log(details)
+  sub_category = "mixer";
 }
-*/
+
 
 var prod = new Product({
     name: name,
 		category: category,
 		sub_category: sub_category,
     images: {
-      thumbnail: img
+      normal: img
     },
 		capacity: capacity,
 		approved: true
   })
-  if (sub_category === undefined ||  capacity === 0) {
+
+  if (capacity === 0) {
 		return false;
 	}
   else {
