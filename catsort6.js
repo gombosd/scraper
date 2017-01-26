@@ -8,8 +8,9 @@ var db = process.env.MONGODB_URI || 'mongodb://localhost/FixedAllProd';
     Product.find({}, function(err, prod){
       for (var i = 0; i < prod.length; i++) {
         (function(i){
-          if ((" " + prod[i].name.toLowerCase() + " " ).search(" can ") !== -1 && prod[i].category === "beer") {
-            prod[i].sub_category = "can"
+          if ((" " + prod[i].name.toLowerCase() + " " ).search(" syrup ") !== -1) {
+            prod[i].sub_category = "syrup"
+            prod[i].category = "non-alcoholic"
             prod[i].save(function(err, res){
               if (err) {
                 console.log(prod.name);
