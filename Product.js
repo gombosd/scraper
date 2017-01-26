@@ -16,6 +16,9 @@ var ProductSchema = new mongoose.Schema({
   oid: {
     type: String
   },
+  from: {
+    type: String
+  },
   shortname: {
     type: String,
   },

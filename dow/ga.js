@@ -1,6 +1,6 @@
 //mongoos
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/amath';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/amath2';
 mongoose.connect(db);
 
 var request = require('request-promise')
@@ -87,10 +87,11 @@ function parsePage(html){
 		return
 	}
 
+  header = " " + header + " ";
+  //spirits
   if (header.search("corporate") !== -1) {
 
   }
-//spirits
 	else if (header.search("whisky") !== -1 || header.search("whiskey") !== -1) {
     if (country.search("scotland") !== -1) {
       sub_category = "scotch whiskey";
@@ -103,43 +104,43 @@ function parsePage(html){
     }
 		category = "spirit";
 	}
-	else if (header.search("absinthe") !== -1) {
+	else if (header.search(" absinthe ") !== -1) {
 		sub_category = "others";
 		category = "spirit";
 	}
-	else if (header.search("aquavit") !== -1) {
+	else if (header.search(" aquavit ") !== -1) {
 		sub_category = "others";
 		category = "spirit";
 	}
-	else if (header.search("bitters") !== -1) {
+	else if (header.search(" bitters ") !== -1) {
 		sub_category = "bitters";
 		category = "spirit";
 	}
-	else if (header.search("brandy") !== -1) {
+	else if (header.search(" brandy ") !== -1) {
 		sub_category = "brandy";
 		category = "spirit";
 	}
-	else if (header.search("cachaca") !== -1) {
+	else if (header.search(" cachaca ") !== -1) {
 		sub_category = "cachaca";
 		category = "spirit";
 	}
-	else if (header.search("gin") !== -1) {
+	else if (header.search(" gin ") !== -1) {
 		sub_category = "gin";
 		category = "spirit";
 	}
-	else if (header.search("mezcal") !== -1) {
+	else if (header.search(" mezcal ") !== -1) {
 		sub_category = "mezcal";
 		category = "spirit";
 	}
-	else if (header.search("rum") !== -1) {
+	else if (header.search(" rum ") !== -1) {
 		sub_category = "rum";
 		category = "spirit";
 	}
-	else if (header.search("tequila") !== -1) {
+	else if (header.search(" tequila ") !== -1) {
 		sub_category = "tequila";
 		category = "spirit";
 	}
-	else if (header.search("vodka") !== -1) {
+	else if (header.search(" vodka ") !== -1) {
 		sub_category = "vodka";
 		category = "spirit";
 	}
@@ -160,11 +161,11 @@ function parsePage(html){
 		else if (header.search("white") !== -1) {
 			sub_category = "white"
 		}
-		else if (header.search("red") !== -1) {
+		else if (header.search(" red ") !== -1) {
 			sub_category = "red"
 		}
 		else if (header.search("rosé") !== -1) {
-			sub_category = "rosé"
+			sub_category = "rose"
 		}
 		else if (header.search("champagne") !== -1) {
 			sub_category = "champagne"
@@ -172,10 +173,10 @@ function parsePage(html){
 		else if (header.search("sparkling") !== -1) {
 			sub_category = "sparkling"
 		}
-		else if (header.search("sweet") !== -1) {
+		else if (header.search(" sweet ") !== -1) {
 			sub_category = "white"
 		}
-		else if (header.search("sake") !== -1) {
+		else if (header.search(" sake ") !== -1) {
 			sub_category = "sake"
 		}
     else {
@@ -218,7 +219,7 @@ function parsePage(html){
   }
 	else {
     category = "other"
-		console.log(" "+header);
+		console.log(header);
 	}
 
   if (category === undefined) {
