@@ -8,8 +8,8 @@ var db = process.env.MONGODB_URI || 'mongodb://localhost/FixedAllProd';
     Product.find({}, function(err, prod){
       for (var i = 0; i < prod.length; i++) {
         (function(i){
-          if ((" " + prod[i].name.toLowerCase() + " " ).search(" syrup ") !== -1) {
-            prod[i].sub_category = "syrup"
+          if ((" " + prod[i].name.toLowerCase() + " " ).search(" ginger beer ") !== -1 || (" " + prod[i].name.toLowerCase() + " " ).search(" cordial ") !== -1) {
+            prod[i].sub_category = "cordial"
             prod[i].category = "non-alcoholic"
             prod[i].save(function(err, res){
               if (err) {

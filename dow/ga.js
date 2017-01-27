@@ -1,6 +1,6 @@
 //mongoos
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/amath2';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/amath3';
 mongoose.connect(db);
 
 var request = require('request-promise')
@@ -62,7 +62,7 @@ function parsePage(html){
   var category;
 	var sub_category;
 	var img = $('#zoomimage').attr('href');
-	var header = $('.breadcrumbs').text().toLowerCase().trim();
+	var header = $('.breadcrumbs').text()
 	//var wtype = $('#prodMeta dl dd').text().toLowerCase();
 	var name = $($('.product-header-name h2')).text().trim();
   var country = $('.country').text().toLowerCase();
@@ -87,12 +87,83 @@ function parsePage(html){
 		return
 	}
 
-  header = " " + header + " ";
+  //header = " " + header + " ";
+  //console.log(header);
   //spirits
-  if (header.search("corporate") !== -1) {
+
+  if (header.search("Corporate") !== -1) {
 
   }
-	else if (header.search("whisky") !== -1 || header.search("whiskey") !== -1) {
+//liqueurs
+	else if (header.search("Liqueur") !== -1) {
+		category = "liqueur";
+	}
+//whine
+	else if (header.search("Wine") !== -1) {
+    category = "wine"
+		if (header.search("Fortified" !== -1)) {
+			sub_category = "fortified"
+		}
+		else if (header.search("White") !== -1) {
+			sub_category = "white"
+		}
+		else if (header.search("Red") !== -1) {
+			sub_category = "red"
+		}
+		else if (header.search("Rosé") !== -1) {
+			sub_category = "rose"
+		}
+		else if (header.search("Champagne") !== -1) {
+			sub_category = "champagne"
+		}
+		else if (header.search("Sparkling") !== -1) {
+			sub_category = "sparkling"
+		}
+		else if (header.search("Sweet") !== -1) {
+			sub_category = "white"
+		}
+		else if (header.search("Sake") !== -1) {
+			sub_category = "sake"
+		}
+    else {
+      sub_category = "other"
+    }
+	}
+  //beer
+  else if (header.search("Beer") !== -1) {
+    category = "beer"
+    sub_category = "bottled"
+  }
+  //soft drinks
+  else if (header.search("Mixer") !== -1) {
+    category = "non-alcoholic"
+    if (header.search("Water") !== -1) {
+      sub_category = "water"
+    }
+    else if (header.search("Juice") !== -1) {
+      sub_category = "juices"
+    }
+    else {
+      sub_category = "mixer"
+    }
+  }
+  else if (header.search("Sundries") !== -1) {
+    category = "softdrinks"
+    if (header.search("Syrup") !== -1) {
+      sub_category = "syrups"
+    }
+    else if (header.search("Purees") !== -1) {
+      sub_category = "pures"
+    }
+    else if (header.search("Garnishes") !== -1) {
+      sub_category = "garnish"
+      category = "other"
+    }
+    else {
+      sub_category = "mixer"
+    }
+  }
+  else if (header.search("Whisky") !== -1 || header.search("Whiskey") !== -1) {
     if (country.search("scotland") !== -1) {
       sub_category = "scotch whiskey";
     }
@@ -104,119 +175,50 @@ function parsePage(html){
     }
 		category = "spirit";
 	}
-	else if (header.search(" absinthe ") !== -1) {
+	else if (header.search("Absinthe") !== -1) {
 		sub_category = "others";
 		category = "spirit";
 	}
-	else if (header.search(" aquavit ") !== -1) {
+	else if (header.search("Aquavit") !== -1) {
 		sub_category = "others";
 		category = "spirit";
 	}
-	else if (header.search(" bitters ") !== -1) {
+	else if (header.search("Bitters") !== -1) {
 		sub_category = "bitters";
 		category = "spirit";
 	}
-	else if (header.search(" brandy ") !== -1) {
+	else if (header.search("Brandy") !== -1) {
 		sub_category = "brandy";
 		category = "spirit";
 	}
-	else if (header.search(" cachaca ") !== -1) {
+	else if (header.search("Cachaca") !== -1) {
 		sub_category = "cachaca";
 		category = "spirit";
 	}
-	else if (header.search(" gin ") !== -1) {
-		sub_category = "gin";
-		category = "spirit";
-	}
-	else if (header.search(" mezcal ") !== -1) {
+	else if (header.search("Mezcal") !== -1) {
 		sub_category = "mezcal";
 		category = "spirit";
 	}
-	else if (header.search(" rum ") !== -1) {
-		sub_category = "rum";
-		category = "spirit";
-	}
-	else if (header.search(" tequila ") !== -1) {
+	else if (header.search("Tequila") !== -1) {
 		sub_category = "tequila";
 		category = "spirit";
 	}
-	else if (header.search(" vodka ") !== -1) {
+	else if (header.search("Vodka") !== -1) {
 		sub_category = "vodka";
 		category = "spirit";
 	}
-	else if (header.search("spirit") !== -1) {
+	else if (header.search("Spirit") !== -1) {
 		sub_category = "other";
 		category = "spirit";
 	}
-//liqueurs
-	else if (header.search("liqueur") !== -1) {
-		category = "liqueur";
+	else if (header.search("Rum") !== -1) {
+		sub_category = "rum";
+		category = "spirit";
 	}
-//whine
-	else if (header.search("wine") !== -1) {
-    category = "wine"
-		if (header.search("fortified" !== -1)) {
-			sub_category = "fortified"
-		}
-		else if (header.search("white") !== -1) {
-			sub_category = "white"
-		}
-		else if (header.search(" red ") !== -1) {
-			sub_category = "red"
-		}
-		else if (header.search("rosé") !== -1) {
-			sub_category = "rose"
-		}
-		else if (header.search("champagne") !== -1) {
-			sub_category = "champagne"
-		}
-		else if (header.search("sparkling") !== -1) {
-			sub_category = "sparkling"
-		}
-		else if (header.search(" sweet ") !== -1) {
-			sub_category = "white"
-		}
-		else if (header.search(" sake ") !== -1) {
-			sub_category = "sake"
-		}
-    else {
-      sub_category = "other"
-    }
+	else if (header.search("Gin") !== -1) {
+		sub_category = "gin";
+		category = "spirit";
 	}
-  //beer
-  else if (header.search("beer") !== -1) {
-    category = "beer"
-    sub_category = "bottled"
-  }
-  //soft drinks
-  else if (header.search("mixer") !== -1) {
-    category = "softdrinks"
-    if (header.search("water") !== -1) {
-      sub_category = "water"
-    }
-    else if (header.search("juice") !== -1) {
-      sub_category = "juices"
-    }
-    else {
-      sub_category = "mixer"
-    }
-  }
-  else if (header.search("sundries") !== -1) {
-    category = "softdrinks"
-    if (header.search("syrup") !== -1) {
-      sub_category = "syrups"
-    }
-    else if (header.search("purees") !== -1) {
-      sub_category = "pures"
-    }
-    else if (header.search("garnishes") !== -1) {
-      sub_category = "garnish"
-      category = "other"
-    }
-    else {
-      sub_category = "mixer"
-    }
-  }
 	else {
     category = "other"
 		console.log(header);
@@ -242,7 +244,7 @@ function parsePage(html){
 		console.log(name);
 		return Promise.reject()
 	}
-	else {
+	else {/*
 		return prod.save(function (err) {
 		  if (err) {
 		    console.log("jipp" + err);
@@ -253,7 +255,9 @@ function parsePage(html){
 //console.log(prod);
 		// var lol = $('#productDefaultImage img').attr()
 //		 console.log(prod);
-	};
+  */
+  console.log(header);
+  };
 };
 
 
