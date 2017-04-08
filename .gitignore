@@ -5,3 +5,6 @@ npm-debug.log
 shower
 p2
 p
+images
+images_*
+*.tar.gz

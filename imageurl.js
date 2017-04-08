@@ -6,7 +6,7 @@ var Product = require('./Product');
 
 //mongoose
 var mongoose = require('mongoose');
-var db = process.env.MONGODB_URI || 'mongodb://localhost/bib';
+var db = process.env.MONGODB_URI || 'mongodb://localhost/barflowProducts';
 mongoose.connect(db);
 
 //express middleware
@@ -20,7 +20,7 @@ app.get('/', function(req, res){
 		}
 		var kk = [];
 		for (var i = 0; i < prod.length; i++) {
-			kk.push(prod[i].images.thumbnail)
+			kk.push(prod[i].images.normal)
 		}
     console.log(prod.length);
 		res.json(kk);
