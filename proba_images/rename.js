@@ -15,12 +15,14 @@ Prod.find()
       stop = false;
       return data.forEach((nameIt) => {
         if(stop){return;}
+        let para = undefined;
         if (pr.images.normal) {
           const kek = pr.images.normal.split('/');
           const name = kek.pop();
           const check = nameIt.split('.');
           if (check[check.length - 1] !== 'jpg' && check[check.length - 1] !== 'png') {
             check.pop();
+            para = nameIt;
             check.join('.');
             nameIt = check;
           }
@@ -33,7 +35,11 @@ Prod.find()
               kiterjesztes = '.' + lel.pop()
             }
             const nev =  lel.join(".");
-            return fs.rename('./images/' + nev + kiterjesztes, './images/' + id + '_thumbnail' + kiterjesztes, info => console.log(info));
+            if (para) {
+              console.log('yoo', para);
+              return fs.rename('./images/' + para, './images/' + id + '_thumbnail' + kiterjesztes, info => console.log(info));
+            }
+            return fs.rename('./images/' + check.join('.'), './images/' + id + '_thumbnail' + kiterjesztes, info => console.log(info));
           }
         }
       })
